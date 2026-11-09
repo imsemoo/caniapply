@@ -62,6 +62,7 @@ return new class extends Migration
             $table->string('title_norm');
             $table->string('company')->nullable();
             $table->string('company_norm')->nullable();
+            $table->index(['title_norm', 'company_norm']);
             $table->longText('description');
             $table->string('location_text')->nullable();
 

@@ -261,4 +261,61 @@ class EligibilityDetectorTest extends TestCase
     {
         $this->assertSame(Eligibility::Unknown, $this->fromCountry('Jordan', 'A remote role, reporting to Jordan our CTO.')[0]);
     }
+
+    public function test_a_sentence_about_pay_or_benefits_is_not_a_restriction(): void
+    {
+        foreach ([
+            'The base salary range for this role is currently for residents of the United States only.',
+            'We offer a wide range of benefits to U.S.-based employees, including medical and dental.',
+        ] as $body) {
+            $this->assertNotSame(Eligibility::Excluded, $this->fromCountry('Germany', $body, 'Anywhere in the World')[0], $body);
+        }
+
+        $this->assertSame(Eligibility::Excluded, $this->fromCountry('Germany', 'We are only considering candidates located in the United States.', 'Anywhere in the World')[0]);
+    }
+
+    public function test_a_later_real_restriction_is_found_after_a_pay_sentence(): void
+    {
+        $body = "The salary range is for residents of the United States only.\nYou must be located in the United States.";
+
+        $this->assertSame(Eligibility::Excluded, $this->fromCountry('Germany', $body)[0]);
+    }
+
+    public function test_country_codes_in_locations(): void
+    {
+        $cases = [
+            ['Germany', 'Rottenburg, Baden-Württemberg, DE', Eligibility::Eligible],
+            ['France', 'Lille, FR', Eligibility::Eligible],
+            ['Germany', 'Lille, FR', Eligibility::Excluded],
+            ['Germany', 'IN', Eligibility::Excluded],
+            ['India', 'IN', Eligibility::Eligible],
+            ['Germany', 'Minsk, BY', Eligibility::Excluded],
+            ['Egypt', 'Cairo, GA, US', Eligibility::Excluded],
+            ['Morocco', 'Boston, MA', Eligibility::Excluded],
+            ['United States', 'Boston, MA', Eligibility::Eligible],
+            ['United Kingdom', 'Leeds, GB', Eligibility::Eligible],
+            ['United States', 'Los Angeles, US | Seattle, US', Eligibility::Eligible],
+            ['Germany', 'Remote, EU', Eligibility::Likely],
+        ];
+
+        foreach ($cases as [$country, $location, $expected]) {
+            $raw = new RawListing(externalId: '1', url: 'https://example.com/1', title: 'Dev', location: $location, description: 'Good role.');
+
+            $this->assertSame($expected, (new EligibilityDetector(HomeCountry::named($country)))->detect($raw, 'Good role.')->country, "{$country} / {$location}");
+        }
+    }
+
+    public function test_a_hybrid_quote_is_a_whole_sentence(): void
+    {
+        $body = 'We have a flexible hybrid work environment, allowing you to choose your days.';
+
+        $this->assertSame('Post says: "'.rtrim($body, '.').'"', $this->fromCountry2Evidence($body));
+    }
+
+    private function fromCountry2Evidence(string $body): ?string
+    {
+        $raw = new RawListing(externalId: '1', url: 'https://example.com/1', title: 'Dev', description: $body, remote: true);
+
+        return (new EligibilityDetector(HomeCountry::named('Germany')))->detect($raw, $body)->evidence;
+    }
 }

@@ -11,7 +11,6 @@
                 <div class="field"><label for="s-headline">{{ __('Job title for letters') }}</label><input id="s-headline" type="text" wire:model="headline">@error('headline')<p class="error">{{ $message }}</p>@enderror</div>
                 <div class="field"><label for="s-country">{{ __('Country') }}</label><select id="s-country" wire:model="country" aria-describedby="s-country-note">@foreach ($countries as $name)<option value="{{ $name }}">{{ $name }}</option>@endforeach</select><p class="sub" id="s-country-note">{{ __('Changing the country re-checks every open job for the new country.') }}</p>@error('country')<p class="error">{{ $message }}</p>@enderror</div>
                 <div class="field"><label for="s-years">{{ __('Years in web development') }}</label><input id="s-years" type="number" min="0" wire:model="years_experience">@error('years_experience')<p class="error">{{ $message }}</p>@enderror</div>
-                <div class="field"><label for="s-sec">{{ __('Years in security work') }}</label><input id="s-sec" type="number" min="0" wire:model="securityYears">@error('securityYears')<p class="error">{{ $message }}</p>@enderror</div>
                 <div class="field span"><label for="s-primary">{{ __('Skills you use daily') }}</label><textarea id="s-primary" rows="2" wire:model="webPrimary"></textarea></div>
                 <div class="field span"><label for="s-secondary">{{ __('Skills you have used on real projects') }}</label><textarea id="s-secondary" rows="2" wire:model="webSecondary"></textarea></div>
                 <div class="field span"><label for="s-light">{{ __('Limited experience') }}</label><textarea id="s-light" rows="2" wire:model="webLight"></textarea></div>
@@ -62,7 +61,7 @@
         <div class="form-foot">
             <button type="submit" class="btn primary" wire:loading.attr="disabled" wire:target="save">{{ __('Save settings') }}</button>
             <button type="button" class="btn" wire:click="rescoreAll">{{ __('Re-score every open job') }}</button>
-            @if ($saved)<span class="ok" role="status">{{ __('Saved. New jobs use these settings.') }}</span>@endif
+            @if ($saved)<span class="ok" role="status">{{ $countryRechecked ? __('Saved. Open jobs were re-checked for the new country.') : __('Saved. New jobs use these settings.') }}</span>@endif
         </div>
     </form>
 </div>

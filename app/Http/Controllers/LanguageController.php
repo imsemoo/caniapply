@@ -18,7 +18,10 @@ class LanguageController
             $profile->update(['locale' => $validated['locale']]);
 
             // Reasons and recommendations are stored as text, so they are rewritten in the new language.
-            Artisan::queue('hunter:reevaluate', ['--all' => true]);
+            // Rules cost nothing and finish at once. AI scoring spends quota, so it waits in the queue.
+            config('hunter.llm.provider') === 'none'
+                ? Artisan::call('hunter:reevaluate', ['--all' => true, '--now' => true])
+                : Artisan::queue('hunter:reevaluate', ['--all' => true]);
         }
 
         return back();

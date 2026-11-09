@@ -106,9 +106,27 @@ class Explorer extends Component
             ->when(is_numeric($this->postedWithin), fn ($q) => $q->where(fn ($inner) => $inner->where('posted_at', '>=', now()->subDays((int) $this->postedWithin))->orWhere(fn ($undated) => $undated->whereNull('posted_at')->where('first_seen_at', '>=', now()->subDays((int) $this->postedWithin)))));
     }
 
+    /** The same role posted per region shows once, as its best-scoring posting. */
+    private function withoutRepeatedPostings(Builder $query): Builder
+    {
+        $sameRole = "o2.title_norm = opportunities.title_norm and o2.company_norm = opportunities.company_norm and o2.bucket = opportunities.bucket and (o2.lifecycle in ('expired', 'closed')) = (opportunities.lifecycle in ('expired', 'closed'))";
+
+        return $query
+            ->select('opportunities.*')
+            ->selectRaw("(select count(*) from opportunities o2 where {$sameRole}) as similar_count")
+            ->whereRaw("(coalesce(opportunities.company_norm, '') = '' or opportunities.id = (select o2.id from opportunities o2 where {$sameRole} order by o2.score desc, o2.id limit 1))");
+    }
+
+    private function hasFreelanceJobs(): bool
+    {
+        return $this->view === 'freelance' || Opportunity::query()->where('employment_type', EmploymentType::Freelance->value)->exists();
+    }
+
     public function render()
     {
-        $query = $this->query()->with(['application', 'listings.source']);
+        // With a filter on, the matching posting may not be the best-scoring one, so all of them stay.
+        $filtered = implode('', [$this->search, $this->track, $this->employment, $this->scope, $this->country, $this->company, $this->source, $this->minScore, $this->minSalary, $this->maxSalary, $this->postedWithin]) !== '';
+        $query = ($filtered ? $this->query() : $this->withoutRepeatedPostings($this->query()))->with(['application', 'listings.source']);
 
         $this->sort === 'newest'
             ? $query->orderByDesc('posted_at')->orderByDesc('id')
@@ -119,7 +137,8 @@ class Explorer extends Component
             'sources' => JobSource::query()->orderBy('label')->get(['id', 'label']),
             'employmentTypes' => EmploymentType::cases(),
             'scopes' => RemoteScope::cases(),
-            'views' => ['open' => 'Worth a look', 'undisclosed' => 'Salary undisclosed', 'freelance' => 'Freelance', 'flagged' => 'Flagged', 'rejected' => 'Rejected', 'gone' => 'Expired or closed'],
+            'hasSecurityJobs' => Opportunity::query()->where('track', 'security')->exists(),
+            'views' => ['open' => 'Worth a look', 'undisclosed' => 'Salary undisclosed', ...($this->hasFreelanceJobs() ? ['freelance' => 'Freelance'] : []), 'flagged' => 'Flagged', 'rejected' => 'Rejected', 'gone' => 'Expired or closed'],
         ]);
     }
 }

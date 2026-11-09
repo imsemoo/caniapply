@@ -97,7 +97,7 @@
     "Interested": "مهتم",
     "Interview notes": "ملاحظات المقابلات",
     "Interviews": "المقابلات",
-    "CanIApply": "صائد الوظائف",
+    "CanIApply": "CanIApply",
     "Job description": "وصف الوظيفة",
     "Job lists": "قوائم الوظائف",
     "Job searches, one per line": "عبارات البحث عن الوظائف، عبارة في كل سطر",
@@ -297,7 +297,6 @@
     "Worth reviewing before you decide.": "تستحق المراجعة قبل القرار.",
     "Written by :engine": "كتبها :engine",
     "Written by the rule engine, no AI model": "كُتبت بالقواعد، دون ذكاء اصطناعي",
-    "Years in security work": "سنوات العمل في الأمن",
     "Years in web development": "سنوات العمل في تطوير الويب",
     "You have": "لديك",
     "≈ :amount/hour effective": "≈ :amount في الساعة فعليًا",
@@ -406,7 +405,6 @@
     "Copy": "نسخ",
     "Copied": "نُسخ",
     "You send it yourself. Nothing leaves this system.": "أنت من يرسله. لا يخرج أي شيء من هذا النظام.",
-    "Needs an AI provider. Add its key in .env, as the README explains.": "تحتاج هذه الميزة إلى مزود ذكاء اصطناعي. أضف مفتاحه في ملف .env كما يوضح README.",
     "The draft could not be written: :reason": "تعذّرت كتابة المسودة: :reason",
     "Saved letter": "حُفظ الخطاب",
     "Your past decisions": "قراراتك السابقة",
@@ -415,5 +413,9 @@
     "You usually reject jobs with :feature": "غالبًا ترفض الوظائف التي فيها :feature",
     "Job title for letters": "المسمى الوظيفي في الخطابات",
     "Needs overlap with European hours": "تتطلب تداخلًا مع ساعات أوروبا",
-    "Changing the country re-checks every open job for the new country.": "عند تغيير البلد تُفحص كل الوظائف المفتوحة من جديد للبلد الجديد."
+    "Changing the country re-checks every open job for the new country.": "عند تغيير البلد تُفحص كل الوظائف المفتوحة من جديد للبلد الجديد.",
+    "Needs an AI provider. Set LLM_PROVIDER and LLM_API_KEY in .env.": "تحتاج هذه الميزة إلى مزود ذكاء اصطناعي. اضبط LLM_PROVIDER و LLM_API_KEY في ملف .env.",
+    "Saved. Open jobs were re-checked for the new country.": "حُفظت. أُعيد فحص الوظائف المفتوحة للبلد الجديد.",
+    "Posted :count times, for different locations": "منشورة :count مرات لمواقع مختلفة",
+    "The pay range is too wide to judge: about $:low to $:high a month.": "نطاق الراتب أوسع من أن يُحكم عليه: من نحو :low$ إلى :high$ شهريًا."
 }

@@ -45,7 +45,7 @@ php artisan hunter:install --demo
 php artisan serve
 ```
 
-`hunter:install` asks for your country, then prints your login. `--demo` loads eight made-up jobs, so that you can look around right away.
+`hunter:install` asks for your country, then prints your login. `--demo` loads eight made-up jobs, so that you can look around right away. They disappear by themselves when the first real job arrives.
 
 To collect real jobs, keep these two running in other terminals:
 
@@ -57,7 +57,7 @@ php artisan queue:work
 php artisan schedule:work
 ```
 
-Or start the first search yourself with `php artisan hunter:discover --now`.
+They search every few hours. To search right now and see the results straight away, run `php artisan hunter:discover --now`.
 
 ### With Docker
 

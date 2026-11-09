@@ -18,6 +18,7 @@
                 <td class="role">
                     <a href="{{ route('jobs.show', $job->id) }}" wire:navigate dir="auto">{{ $job->title }}</a>
                     <span class="sub" dir="auto">{{ $job->company ?: ($job->isFreelance() ? __('Freelance project') : __('Employer not named')) }}@if ($job->track === 'security') · {{ __('Security track') }} @endif</span>
+                    @if (($job->similar_count ?? 1) > 1)<span class="sub">{{ __('Posted :count times, for different locations', ['count' => $job->similar_count]) }}</span>@endif
                     @if ($actions && $job->safeUrl())<a class="open-listing" href="{{ $job->safeUrl() }}" target="_blank" rel="noopener noreferrer nofollow">{{ __('Open original listing') }}</a>@endif
                 </td>
                 <td class="pay">{{ $job->compensationLabel() }}</td>

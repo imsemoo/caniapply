@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\ApplicationStatus;
 use App\Enums\Bucket;
+use App\Enums\CountryEligibility;
+use App\Enums\RemoteScope;
 use App\Livewire\AddJob;
 use App\Livewire\Applications;
 use App\Livewire\Explorer;
@@ -11,11 +13,14 @@ use App\Livewire\OpportunityDetail;
 use App\Livewire\Settings;
 use App\Models\Application;
 use App\Models\CandidateProfile;
+use App\Models\JobSource;
 use App\Models\Opportunity;
 use App\Models\User;
+use Illuminate\Foundation\Console\QueuedCommand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
 use Tests\Feature\Concerns\BuildsOpportunities;
 use Tests\TestCase;
@@ -68,8 +73,8 @@ class DashboardTest extends TestCase
     public function test_explorer_filters_narrow_the_list(): void
     {
         $this->signIn();
-        $this->opportunity(['title' => 'High One', 'score' => 90, 'bucket' => Bucket::Qualified, 'monthly_usd_max' => 4000]);
-        $this->opportunity(['title' => 'Low One', 'score' => 62, 'bucket' => Bucket::Qualified, 'monthly_usd_max' => 1600]);
+        $this->opportunity(['title' => 'High One', 'title_norm' => 'high one', 'score' => 90, 'bucket' => Bucket::Qualified, 'monthly_usd_max' => 4000]);
+        $this->opportunity(['title' => 'Low One', 'title_norm' => 'low one', 'score' => 62, 'bucket' => Bucket::Qualified, 'monthly_usd_max' => 1600]);
 
         Livewire::test(Explorer::class)
             ->assertSee('High One')->assertSee('Low One')
@@ -137,7 +142,7 @@ class DashboardTest extends TestCase
         $job = $this->opportunity();
         $other = $this->opportunity();
 
-        $this->expectException(\Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException::class);
+        $this->expectException(CannotUpdateLockedPropertyException::class);
         Livewire::test(OpportunityDetail::class, ['opportunity' => $job])->set('opportunityId', $other->id);
     }
 
@@ -188,36 +193,59 @@ class DashboardTest extends TestCase
     {
         Queue::fake();
         $this->signIn();
-        $job = $this->opportunity(['location_text' => 'Germany', 'remote_scope' => \App\Enums\RemoteScope::SpecificCountries, 'country_eligibility' => \App\Enums\CountryEligibility::Excluded]);
+        $job = $this->opportunity(['location_text' => 'Germany', 'remote_scope' => RemoteScope::SpecificCountries, 'country_eligibility' => CountryEligibility::Excluded]);
 
         Livewire::test(Settings::class)->set('country', 'Germany')->call('save')->assertHasNoErrors();
 
         $this->assertSame('Germany', CandidateProfile::current()->country);
-        $this->assertSame(\App\Enums\CountryEligibility::Eligible, $job->fresh()->country_eligibility);
+        $this->assertSame(CountryEligibility::Eligible, $job->fresh()->country_eligibility);
         $this->assertTrue($job->fresh()->needs_evaluation);
-        Queue::assertPushed(\Illuminate\Foundation\Console\QueuedCommand::class);
+        Queue::assertPushed(QueuedCommand::class);
+    }
+
+    public function test_real_jobs_replace_the_demo_data(): void
+    {
+        $this->artisan('hunter:demo')->assertSuccessful();
+        $this->assertSame(8, Opportunity::query()->count());
+
+        JobSource::removeDemoData();
+
+        $this->assertSame(0, Opportunity::query()->count());
+        $this->assertNull(JobSource::query()->where('key', 'demo')->first());
+    }
+
+    public function test_the_same_role_posted_twice_shows_once(): void
+    {
+        $this->signIn();
+        $this->opportunity(['score' => 80, 'bucket' => Bucket::Qualified, 'title' => 'Staff Engineer One']);
+        $this->opportunity(['score' => 90, 'bucket' => Bucket::Qualified, 'title' => 'Staff Engineer One', 'location_text' => 'Elsewhere']);
+
+        $jobs = Opportunity::query()->where('title', 'Staff Engineer One')->get();
+        $jobs->each->update(['title_norm' => 'staff engineer one']);
+
+        Livewire::test(Explorer::class)->assertSee('Posted 2 times', false);
     }
 
     public function test_an_unknown_country_is_refused(): void
     {
         $this->signIn();
 
-        Livewire::test(Settings::class)->set("country", "Atlantis")->call("save")->assertHasErrors("country");
+        Livewire::test(Settings::class)->set('country', 'Atlantis')->call('save')->assertHasErrors('country');
     }
 
     public function test_install_creates_one_account_and_the_demo_never_calls_out(): void
     {
         Http::fake();
 
-        $this->artisan("hunter:install", ["--no-interaction" => true, "--country" => "Brazil", "--name" => "Sam Rivera", "--headline" => "Developer", "--email" => "sam@example.com", "--demo" => true])->assertSuccessful();
+        $this->artisan('hunter:install', ['--no-interaction' => true, '--country' => 'Brazil', '--name' => 'Sam Rivera', '--headline' => 'Developer', '--email' => 'sam@example.com', '--demo' => true])->assertSuccessful();
 
-        $this->assertSame("Brazil", CandidateProfile::current()->country);
+        $this->assertSame('Brazil', CandidateProfile::current()->country);
         $this->assertSame(1, User::query()->count());
         $this->assertSame(8, Opportunity::query()->count());
-        $this->assertSame(0, Opportunity::query()->where("needs_evaluation", true)->count());
+        $this->assertSame(0, Opportunity::query()->where('needs_evaluation', true)->count());
         Http::assertNothingSent();
 
-        $this->artisan("hunter:install", ["--no-interaction" => true, "--country" => "Brazil", "--name" => "Sam", "--headline" => "Developer"])->assertSuccessful();
+        $this->artisan('hunter:install', ['--no-interaction' => true, '--country' => 'Brazil', '--name' => 'Sam', '--headline' => 'Developer'])->assertSuccessful();
         $this->assertSame(1, User::query()->count());
     }
 

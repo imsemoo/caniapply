@@ -19,6 +19,9 @@ class EligibilityDetector
 
     private const ARAB_PLACES = 'مصر|القاهرة|السعودية|الرياض|جدة|الإمارات|دبي|الكويت|قطر|عمان|البحرين|الأردن|تركيا|لبنان|العراق|المغرب|تونس|الجزائر|فلسطين|ليبيا|السودان|اليمن|سوريا';
 
+    /** "The salary range is for US residents" limits the pay information, not who may apply. */
+    private const ABOUT_PAY = '/\b(?:salary|base pay|pay (?:range|band|scale)|compensation (?:range|package)|benefits?|medical|dental|health insurance|401\(?k\)?)\b/i';
+
     private const WORLD = '/\b(anywhere|world[\s-]?wide|global|globally|all countries|any country|any location)\b|من أي مكان|أي دولة|جميع الدول/i';
 
     private const EUROPE = '/\beurope(an)?\b|\beu\b|european union|\beea\b|\bcet\b|\bcest\b|germany|france|spain|portugal|netherlands|poland|romania|italy|ireland|sweden|norway|denmark|finland|austria|belgium|switzerland|czech|hungary|greece|bulgaria|croatia|serbia|ukraine|estonia|latvia|lithuania|united kingdom|\buk\b|england|scotland|london|berlin|munich|hamburg|amsterdam|paris|madrid|barcelona|lisbon|warsaw|dublin/i';
@@ -55,8 +58,14 @@ class EligibilityDetector
         }
 
         $mode = $this->workMode($raw, $location, $text);
+
+        // A foreign location decides it, and is better evidence than a passing mention of an office.
+        if ($mode !== null && $mode['from_body'] && ($this->fromLocation($location, $raw)[1] ?? null) === Eligibility::Excluded) {
+            $mode = null;
+        }
+
         if ($mode !== null) {
-            $atHome = $this->home->isNamedIn($location);
+            $atHome = $this->home->isLocation($location);
             // A remote post that mentions office days may only mean local staff. Keep it, unconfirmed.
             $mayStillBeRemote = $mode['from_body'] && $raw->remote === true && ($this->fromLocation($location, $raw)[1] ?? null) !== Eligibility::Excluded;
 
@@ -123,7 +132,7 @@ class EligibilityDetector
             return [Scope::MultiCountry, Eligibility::Excluded];
         }
 
-        if ($this->home->isNamedIn($location)) {
+        if ($this->home->isLocation($location)) {
             return [Scope::SpecificCountries, Eligibility::Eligible];
         }
 
@@ -145,7 +154,7 @@ class EligibilityDetector
             'other' => preg_match(self::OTHER_COUNTRIES, $location) === 1,
         ];
 
-        $hits['other'] = $hits['other'] || (! $hits['europe'] && ! $hits['americas'] && ! $hits['apac'] && $this->home->namesAnotherCountry($location));
+        $hits['other'] = $hits['other'] || (! $hits['europe'] && ! $hits['americas'] && ! $hits['apac'] && $this->home->isForeignLocation($location));
 
         $regions = count(array_filter([$hits['middle_east_africa'], $hits['europe'], $hits['americas'], $hits['apac'], $hits['other']]));
 
@@ -174,7 +183,7 @@ class EligibilityDetector
             }
         }
 
-        return ! $this->home->namesAnotherCountry($location);
+        return ! $this->home->isForeignLocation($location);
     }
 
     /** @return array{scope: Scope, evidence: string, from_body: bool}|null */
@@ -184,8 +193,8 @@ class EligibilityDetector
             return ['scope' => Scope::Hybrid, 'evidence' => 'Listing location: '.$location, 'from_body' => false];
         }
 
-        if ($raw->sourceEligibility !== Eligibility::Eligible && preg_match('/[^.\n]{0,40}(?:\bhybrid[\s-](?:role|position|work|model|schedule|environment|setup|working)|work(?:ing)? hybrid|(?:on-?site|in[\s-]office)\s+\w+\s+days?\s+(?:a|per)\s+week|\b\w+\s+days?\s+(?:a|per)\s+week\s+(?:in|at)\s+(?:the|our)\s+office)[^.\n]{0,20}/i', $text, $match)) {
-            return ['scope' => Scope::Hybrid, 'evidence' => 'Post says: "'.trim($match[0]).'"', 'from_body' => true];
+        if ($raw->sourceEligibility !== Eligibility::Eligible && preg_match('/(?:\bhybrid[\s-](?:role|position|work|model|schedule|environment|setup|working)|work(?:ing)? hybrid|(?:on-?site|in[\s-]office)\s+\w+\s+days?\s+(?:a|per)\s+week|\b\w+\s+days?\s+(?:a|per)\s+week\s+(?:in|at)\s+(?:the|our)\s+office)/i', $text, $match, PREG_OFFSET_CAPTURE)) {
+            return ['scope' => Scope::Hybrid, 'evidence' => 'Post says: "'.$this->sentenceAround($text, $match[0][1], strlen($match[0][0])).'"', 'from_body' => true];
         }
 
         if ($raw->remote === false || preg_match('/^(on[\s-]?site|in[\s-]office)\b|حضوري|من المقر/iu', $location)) {
@@ -220,16 +229,17 @@ class EligibilityDetector
         }
 
         foreach ($patterns as $pattern) {
-            if (! preg_match($pattern, $text, $match, PREG_OFFSET_CAPTURE)) {
-                continue;
-            }
+            preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE);
 
-            $sentence = $this->sentenceAround($text, $match[0][1], strlen($match[0][0]));
-            if ($this->home->isCoveredBy($sentence) || $this->home->isCoveredBy($match[0][0])) {
-                continue;
-            }
+            foreach ($matches[0] as [$found, $offset]) {
+                $sentence = $this->sentenceAround($text, $offset, strlen($found));
 
-            return 'Post says: "'.$sentence.'"';
+                if ($this->home->isCoveredBy($sentence) || $this->home->isCoveredBy($found) || preg_match(self::ABOUT_PAY, $sentence)) {
+                    continue;
+                }
+
+                return 'Post says: "'.$sentence.'"';
+            }
         }
 
         return null;

@@ -9,6 +9,16 @@ class JobSource extends Model
 {
     protected $guarded = ['id'];
 
+    public static function removeDemoData(): void
+    {
+        $demo = self::query()->where('key', 'demo')->first();
+
+        if ($demo !== null) {
+            Opportunity::query()->where('primary_source_id', $demo->id)->delete();
+            $demo->delete();
+        }
+    }
+
     protected function casts(): array
     {
         return [

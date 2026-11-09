@@ -42,6 +42,10 @@ class HunterDiscover extends Command
             }
         }
 
+        if ($this->option('now')) {
+            $this->call('hunter:reevaluate', ['--now' => true]);
+        }
+
         return self::SUCCESS;
     }
 }

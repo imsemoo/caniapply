@@ -14,7 +14,7 @@
         <div class="filter-row">
             <div class="field wide"><label for="f-search">{{ __('Search') }}</label><input id="f-search" type="search" wire:model.live.debounce.400ms="search" placeholder="{{ __('Title or description') }}"></div>
             <div class="field"><label for="f-track">{{ __('Category') }}</label>
-                <select id="f-track" wire:model.live="track"><option value="">{{ __('All') }}</option><option value="web">{{ __('Web development') }}</option><option value="security">{{ __('Cybersecurity / SOC') }}</option></select></div>
+                <select id="f-track" wire:model.live="track"><option value="">{{ __('All') }}</option><option value="web">{{ __('Web development') }}</option>@if ($hasSecurityJobs)<option value="security">{{ __('Cybersecurity / SOC') }}</option>@endif</select></div>
             <div class="field"><label for="f-scope">{{ __('Remote eligibility') }}</label>
                 <select id="f-scope" wire:model.live="scope"><option value="">{{ __('All') }}</option>@foreach ($scopes as $option)<option value="{{ $option->value }}">{{ $option->label() }}</option>@endforeach</select></div>
             <div class="field"><label for="f-posted">{{ __('Published') }}</label>

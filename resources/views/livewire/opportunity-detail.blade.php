@@ -144,7 +144,7 @@
                     <span wire:loading wire:target="writeLetter">{{ __('Working…') }}</span>
                 </button>
             </div>
-            @if (! $canWriteLetter)<p class="sub">{{ __('Needs an AI provider. Add its key in .env, as the README explains.') }}</p>@endif
+            @if (! $canWriteLetter)<p class="sub">{{ __('Needs an AI provider. Set LLM_PROVIDER and LLM_API_KEY in .env.') }}</p>@endif
             @if ($letterError)<p class="error" role="alert">{{ $letterError }}</p>@endif
             @if ($cover_letter !== null && $cover_letter !== '')
                 <div class="field"><label class="sr" for="a-letter">{{ __('Application letter') }}</label><textarea id="a-letter" rows="12" dir="auto" x-ref="letter" wire:model="cover_letter"></textarea>@error('cover_letter')<p class="error">{{ $message }}</p>@enderror</div>

@@ -11,7 +11,7 @@
         <div class="field span"><label for="j-url">{{ __('Link to the listing') }}</label><input id="j-url" type="url" dir="ltr" wire:model="url">@error('url')<p class="error">{{ $message }}</p>@enderror</div>
         <div class="field span half"><label for="j-loc">{{ __('Location as written in the listing') }}</label><input id="j-loc" type="text" dir="auto" wire:model="location">@error('location')<p class="error">{{ $message }}</p>@enderror</div>
         <div class="field"><label for="j-emp">{{ __('Employment') }}</label><select id="j-emp" wire:model="employment"><option value="">{{ __('Not stated') }}</option><option value="full_time">{{ __('Full-time') }}</option><option value="part_time">{{ __('Part-time') }}</option><option value="contract">{{ __('Contract') }}</option></select></div>
-        <div class="field"><label for="j-track">{{ __('Career track') }}</label><select id="j-track" wire:model="track"><option value="web">{{ __('Web development') }}</option><option value="security">{{ __('Cybersecurity / SOC') }}</option></select></div>
+        <div class="field"><label for="j-track">{{ __('Career track') }}</label><select id="j-track" wire:model="track"><option value="web">{{ __('Web development') }}</option></select></div>
         <label class="check span"><input type="checkbox" wire:model="remote"> {{ __('The listing says remote') }}</label>
         <label class="check span"><input type="checkbox" wire:model="freelance"> {{ __('This is a freelance project') }}</label>
         <div class="field span"><label for="j-desc">{{ __('Full job description') }}</label><textarea id="j-desc" rows="14" dir="auto" wire:model="description"></textarea>@error('description')<p class="error">{{ $message }}</p>@enderror</div>

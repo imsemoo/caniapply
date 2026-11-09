@@ -46,6 +46,13 @@ class EvaluationRulesTest extends TestCase
         $this->assertNotSame(Bucket::Rejected, $this->evaluate(['monthly_usd_min' => 2500, 'monthly_usd_max' => 2500])->bucket);
     }
 
+    public function test_a_very_wide_pay_range_gets_the_neutral_score(): void
+    {
+        $job = $this->evaluate(['monthly_usd_min' => 3000, 'monthly_usd_max' => 12000]);
+
+        $this->assertSame(60, $job->factors['compensation']['score']);
+    }
+
     public function test_salary_above_preferred_is_never_penalised(): void
     {
         $preferred = $this->evaluate(['monthly_usd_min' => 6000, 'monthly_usd_max' => 6000]);

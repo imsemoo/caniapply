@@ -38,9 +38,9 @@ class Settings extends Component
 
     public string $projectQueries = '';
 
-    public string $securityYears = '0';
-
     public bool $saved = false;
+
+    public bool $countryRechecked = false;
 
     public function mount(): void
     {
@@ -59,7 +59,6 @@ class Settings extends Component
         $this->webLight = implode(', ', $web['skills']['light']);
         $this->webQueries = implode("\n", $web['queries']);
         $this->projectQueries = implode("\n", $web['project_queries']);
-        $this->securityYears = (string) $profile->track('security')['experience_years'];
     }
 
     protected function rules(): array
@@ -69,7 +68,6 @@ class Settings extends Component
             'headline' => ['required', 'string', 'max:120'],
             'country' => ['required', Rule::in(HomeCountry::names())],
             'years_experience' => ['required', 'integer', 'min:0', 'max:50'],
-            'securityYears' => ['required', 'integer', 'min:0', 'max:50'],
             'compensation.*' => ['required', 'numeric', 'min:0', 'max:1000000'],
             'weights.*' => ['required', 'integer', 'min:0', 'max:100'],
             'thresholds.*' => ['required', 'integer', 'min:0', 'max:100'],
@@ -84,6 +82,7 @@ class Settings extends Component
     public function save(EligibilityRefresher $refresher): void
     {
         $this->saved = false;
+        $this->countryRechecked = false;
         $this->validate();
 
         if (array_sum($this->weights) !== 100) {
@@ -103,7 +102,6 @@ class Settings extends Component
         ];
         $tracks['web']['queries'] = $this->list($this->webQueries, "\n");
         $tracks['web']['project_queries'] = $this->list($this->projectQueries, "\n");
-        $tracks['security']['experience_years'] = (int) $this->securityYears;
 
         $countryChanged = $profile->country !== $this->country;
 
@@ -120,6 +118,7 @@ class Settings extends Component
 
         if ($countryChanged) {
             $refresher->run();
+            $this->countryRechecked = true;
             Artisan::queue('hunter:reevaluate', ['--all' => true]);
         }
 

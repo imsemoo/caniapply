@@ -39,6 +39,10 @@ class CompensationAssessor
             return $this->result(0, __('About $:amount/month, below the $:floor floor.', ['amount' => number_format($high), 'floor' => number_format($floor)]), reject: __('Full-time pay below the $:floor floor', ['floor' => number_format($floor)]));
         }
 
+        if ($low > 0 && $high / $low >= 3) {
+            return $this->result($rules['undisclosed_score'], __('The pay range is too wide to judge: about $:low to $:high a month.', ['low' => number_format($low), 'high' => number_format($high)]));
+        }
+
         $middle = ($low + $high) / 2;
         $score = $this->payScale($middle, $rules);
         $note = __('About $:amount/month.', ['amount' => number_format($middle)]);

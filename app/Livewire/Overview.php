@@ -30,6 +30,7 @@ class Overview extends Component
                 ->orderByDesc('score')
                 ->limit(40)->get()
                 ->sortByDesc(fn (Opportunity $job) => [$job->freshnessAt()->gte(now()->subHours(72)) ? 1 : 0, $job->score])
+                ->unique(fn (Opportunity $job) => filled($job->company_norm) ? $job->title_norm.'|'.$job->company_norm : $job->id)
                 ->take(10)->values(),
             'followUps' => Application::query()->with('opportunity')
                 ->whereNotNull('follow_up_on')->where('follow_up_on', '<=', today()->addDays(3))

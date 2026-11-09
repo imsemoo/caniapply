@@ -46,6 +46,10 @@ class DiscoveryRunner
             return $this->finishFailed($source, $run, $counts, $e);
         }
 
+        if ($counts[ListingIngestor::CREATED] > 0) {
+            JobSource::removeDemoData();
+        }
+
         return $this->finishOk($source, $run, $counts, $listingErrors, $connector->partialFailures());
     }
 

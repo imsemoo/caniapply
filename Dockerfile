@@ -15,7 +15,8 @@ ENV APP_ENV=production APP_DEBUG=false DB_DATABASE=/app/storage/database.sqlite
 WORKDIR /app
 COPY . .
 COPY --from=vendor /app/vendor ./vendor
-RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs \n    && composer dump-autoload --no-dev --optimize --no-interaction
+RUN mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs \
+    && composer dump-autoload --no-dev --optimize --no-interaction
 
 RUN chmod +x docker/entrypoint.sh
 EXPOSE 8000

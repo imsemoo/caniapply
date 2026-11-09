@@ -127,6 +127,11 @@ final class HomeCountry
         'Yemen' => ['YE', 3, self::ARAB_LEAGUE, '\b(?:yemen|sanaa)\b|اليمن|صنعاء'],
     ];
 
+    /** "Boston, MA" is a state. "Lille, Nord, MA" or a bare "MA" is a country code. */
+    private const US_STATES = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'FL', 'GA', 'HI', 'IA', 'IL', 'KS', 'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WI', 'WV', 'WY', 'DC'];
+
+    private const ISO_CODES = 'AD AE AF AG AI AL AM AO AR AS AT AU AW AZ BA BB BD BE BF BG BH BI BJ BM BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CK CL CM CN CO CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FK FM FO FR GA GB GD GE GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MR MS MT MU MV MW MX MY MZ NA NC NE NG NI NL NO NP NR NZ OM PA PE PF PG PH PK PL PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SY SZ TD TG TH TJ TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VN VU WS XK YE ZA ZM ZW';
+
     /** @var array<string, string> */
     private static array $others = [];
 
@@ -161,6 +166,38 @@ final class HomeCountry
     public function isNamedIn(string $text): bool
     {
         return preg_match('/'.$this->pattern.'/iu', $text) === 1;
+    }
+
+    /** A trailing country code settles it: "Cairo, GA, US" is not in Egypt. */
+    public function isLocation(string $location): bool
+    {
+        $codes = $this->countryCodesIn($location);
+
+        return $codes !== [] ? in_array($this->code, $codes, true) : $this->isNamedIn($location);
+    }
+
+    public function isForeignLocation(string $location): bool
+    {
+        $codes = $this->countryCodesIn($location);
+
+        return $codes !== [] ? ! in_array($this->code, $codes, true) : $this->namesAnotherCountry($location);
+    }
+
+    /** @return list<string> */
+    private function countryCodesIn(string $location): array
+    {
+        $codes = [];
+
+        foreach (preg_split('/[|;]/', $location) as $place) {
+            $parts = array_map('trim', explode(',', $place));
+            $code = str_replace('UK', 'GB', end($parts));
+
+            if (in_array($code, explode(' ', self::ISO_CODES), true) && ! (count($parts) === 2 && in_array($code, self::US_STATES, true))) {
+                $codes[] = $code;
+            }
+        }
+
+        return $codes;
     }
 
     public function namesAnotherCountry(string $text): bool
