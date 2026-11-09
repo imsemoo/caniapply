@@ -1,0 +1,31 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite, intl, zip
+      - run: composer install --no-interaction --prefer-dist
+      - run: php artisan test --compact
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build
+      - name: The login page answers
+        run: |
+          for attempt in $(seq 1 30); do
+            curl --silent --fail http://localhost:8000/login > /dev/null && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1

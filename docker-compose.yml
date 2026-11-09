@@ -1,0 +1,22 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      HUNTER_COUNTRY: ${HUNTER_COUNTRY:-Egypt}
+      HUNTER_NAME: ${HUNTER_NAME:-Your Name}
+      HUNTER_HEADLINE: ${HUNTER_HEADLINE:-Full-stack web developer}
+      HUNTER_EMAIL: ${HUNTER_EMAIL:-you@example.com}
+      HUNTER_TIMEZONE: ${HUNTER_TIMEZONE:-UTC}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-none}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+    volumes:
+      - caniapply-data:/app/storage
+    restart: unless-stopped
+
+volumes:
+  caniapply-data:

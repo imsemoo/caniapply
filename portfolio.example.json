@@ -1,0 +1,26 @@
+{
+    "projects": [
+        {
+            "slug": "booking-dashboard",
+            "name": "Booking dashboard",
+            "tier": 1,
+            "lang": "en",
+            "role": "Front-end and back-end",
+            "stack": ["Laravel", "Livewire", "MySQL"],
+            "tags": ["dashboard"],
+            "summary": "Admin dashboard for a small clinic chain.",
+            "url": "https://example.com/booking"
+        },
+        {
+            "slug": "storefront-concept",
+            "name": "Storefront concept",
+            "tier": 2,
+            "lang": "ar",
+            "role": "Front-end, concept not launched",
+            "stack": ["Vue.js", "TypeScript"],
+            "tags": ["e-commerce", "rtl"],
+            "summary": "Bilingual storefront concept, not launched.",
+            "url": "https://example.com/storefront"
+        }
+    ]
+}
