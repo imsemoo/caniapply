@@ -4,6 +4,7 @@ namespace App\Sources;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -147,12 +148,13 @@ class SourceHttp
             ->timeout(45)
             ->connectTimeout(15)
             ->retry(3, function (int $attempt, Throwable $e) {
-                $retryAfter = (int) ($e->response?->header('Retry-After') ?? 0);
+                // A dropped connection has no response to read.
+                $retryAfter = $e instanceof RequestException ? (int) $e->response->header('Retry-After') : 0;
 
                 return min(max($retryAfter * 1000, 1500 * $attempt), 30000);
             }, function (Throwable $e) {
                 return $e instanceof ConnectionException
-                    || in_array($e->response?->status(), [429, 500, 502, 503, 504], true);
+                    || ($e instanceof RequestException && in_array($e->response->status(), [429, 500, 502, 503, 504], true));
             }, throw: false);
     }
 
