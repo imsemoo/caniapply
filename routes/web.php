@@ -19,7 +19,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-    Route::post('/language', LanguageController::class)->name('language');
+    Route::post('/language', LanguageController::class)->middleware('throttle:10,1')->name('language');
 
     Route::livewire('/', Overview::class)->name('overview');
     Route::livewire('/jobs', Explorer::class)->name('jobs');

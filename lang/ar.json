@@ -417,5 +417,8 @@
     "Needs an AI provider. Set LLM_PROVIDER and LLM_API_KEY in .env.": "تحتاج هذه الميزة إلى مزود ذكاء اصطناعي. اضبط LLM_PROVIDER و LLM_API_KEY في ملف .env.",
     "Saved. Open jobs were re-checked for the new country.": "حُفظت. أُعيد فحص الوظائف المفتوحة للبلد الجديد.",
     "Posted :count times, for different locations": "منشورة :count مرات لمواقع مختلفة",
-    "The pay range is too wide to judge: about $:low to $:high a month.": "نطاق الراتب أوسع من أن يُحكم عليه: من نحو :low$ إلى :high$ شهريًا."
+    "The pay range is too wide to judge: about $:low to $:high a month.": "نطاق الراتب أوسع من أن يُحكم عليه: من نحو :low$ إلى :high$ شهريًا.",
+    "Saved. Open jobs are being re-checked for the new country in the background.": "حُفظت. يجري فحص الوظائف المفتوحة للبلد الجديد في الخلفية.",
+    "Your language is saved. The reasons on each job are being rewritten in the background.": "حُفظت اللغة. تُعاد كتابة الأسباب في كل وظيفة في الخلفية.",
+    "The source shows only part of its country list, so your country is not confirmed yet": "يعرض المصدر جزءًا من قائمة الدول فقط، لذلك لم يتأكد بلدك بعد"
 }

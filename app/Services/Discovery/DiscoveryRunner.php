@@ -46,11 +46,13 @@ class DiscoveryRunner
             return $this->finishFailed($source, $run, $counts, $e);
         }
 
+        $finished = $this->finishOk($source, $run, $counts, $listingErrors, $connector->partialFailures());
+
         if ($counts[ListingIngestor::CREATED] > 0) {
             JobSource::removeDemoData();
         }
 
-        return $this->finishOk($source, $run, $counts, $listingErrors, $connector->partialFailures());
+        return $finished;
     }
 
     private function finishOk(JobSource $source, SourceRun $run, array $counts, int $listingErrors, array $partialFailures): SourceRun

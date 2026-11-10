@@ -7,11 +7,20 @@ use App\Models\CandidateProfile;
 use App\Models\Opportunity;
 use App\Services\Llm\LlmFailed;
 use App\Services\Llm\LlmGateway;
+use Normalizer;
 
 /** Drafts a letter for you to read, edit and send yourself. It never sends anything. */
 class ApplicationLetterWriter
 {
     private const QUALIFIERS = ['concept', 'proposal', 'pitch', 'not launched', 'not public', 'not production', 'my own', 'demo', 'in development', 'in a team'];
+
+    private const FULL_URL = '~(?:https?|mailto):(?:(?!(?:https?|mailto):)\S)+~iu';
+
+    /** Any host-shaped word counts as a link, whatever it ends in, unless NOT_A_LINK says otherwise. */
+    private const HOST_SHAPED = '~(?<![\p{L}\p{N}_-])(?:(?:[\p{L}\p{N}-]+\.)+[a-z]{2,}|\d{1,3}(?:\.\d{1,3}){3})(?![\p{L}\p{N}-])~iu';
+
+    /** Technology and file names that have the same shape. None of these endings is a real domain ending. */
+    private const NOT_A_LINK = '~^(?:asp|ado|vb)\.net$|^(?:socket|fly)\.io$|\.(?:jsx?|tsx?|php|css|scss|html?|json|vue|txt|sql|ya?ml|xml|pdf)$~i';
 
     public function __construct(private LlmGateway $llm) {}
 
@@ -173,17 +182,31 @@ TEXT;
 
         $allowedHosts = array_map(fn (string $url) => $this->hostOf($url), array_filter([config('hunter.letters.portfolio_site'), ...array_column($evidence, 'link')]));
 
-        preg_match_all('~https?://[^\s<>"\')]+|(?:[\w-]+\.)+(?:com|net|org|io|co|me|ly|app|dev|xyz|ps|sa|ae|eg|info|site)(?:\.[a-z]{2})?\b~i', $letter, $links);
-        foreach ($links[0] as $link) {
+        $plain = $this->asBrowsersReadIt($letter);
+
+        preg_match_all(self::FULL_URL, $plain, $urls);
+        preg_match_all(self::HOST_SHAPED, preg_replace(self::FULL_URL, ' ', $plain), $hosts);
+
+        foreach ([...array_map(fn (string $url) => rtrim($url, '.,;:!?)]\'"،؛'), $urls[0]), ...preg_grep(self::NOT_A_LINK, $hosts[0], PREG_GREP_INVERT)] as $link) {
             if (! in_array($this->hostOf($link), $allowedHosts, true)) {
                 throw new LlmFailed('The draft contained a link that is not from your portfolio.');
             }
         }
     }
 
+    /** Full-width letters, ideographic dots and invisible characters all resolve to a plain host. */
+    private function asBrowsersReadIt(string $letter): string
+    {
+        $text = Normalizer::normalize($letter, Normalizer::FORM_KC) ?: $letter;
+
+        return str_replace('。', '.', preg_replace('/\p{Cf}/u', '', $text));
+    }
+
     private function hostOf(string $url): string
     {
-        $host = parse_url(preg_match('#^https?://#i', $url) ? $url : 'https://'.$url, PHP_URL_HOST) ?: '';
+        // Read the way a browser does: "\" ends the host like "/", and only what follows the last "@" is the host.
+        $authority = preg_split('~[/\\\\?#]~', preg_replace('~^(?:https?|mailto):[/\\\\]*~i', '', $url), 2)[0];
+        $host = preg_replace('/:\d*$/', '', substr((string) strrchr('@'.$authority, '@'), 1));
 
         return preg_replace('/^www\./i', '', mb_strtolower($host));
     }

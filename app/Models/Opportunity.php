@@ -12,9 +12,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 class Opportunity extends Model
 {
+    private const INLINE_REFRESH_LIMIT = 300;
+
     protected $guarded = ['id'];
 
     protected function casts(): array
@@ -73,12 +76,23 @@ class Opportunity extends Model
         $query->whereNotIn('lifecycle', [Lifecycle::Expired->value, Lifecycle::Closed->value]);
     }
 
+    public function scopeWithoutDemo(Builder $query): void
+    {
+        $query->whereDoesntHave('primarySource', fn (Builder $source) => $source->where('key', 'demo'));
+    }
+
+    /** Beyond this many open jobs, rewriting them all would outlast a web request. */
+    public static function fitsInOneRequest(): bool
+    {
+        return self::query()->active()->count() <= self::INLINE_REFRESH_LIMIT;
+    }
+
     public function isFreelance(): bool
     {
         return $this->employment_type === EmploymentType::Freelance;
     }
 
-    public function freshnessAt(): \Illuminate\Support\Carbon
+    public function freshnessAt(): Carbon
     {
         return $this->posted_at ?? $this->first_seen_at;
     }

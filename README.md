@@ -57,7 +57,7 @@ php artisan queue:work
 php artisan schedule:work
 ```
 
-They search every few hours. To search right now and see the results straight away, run `php artisan hunter:discover --now`.
+They search every few hours. To search right now and see the results straight away, run `php artisan hunter:discover --now`. A source searched in the last few hours is skipped, so add `--force` to search it again.
 
 ### With Docker
 

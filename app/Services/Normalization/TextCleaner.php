@@ -5,14 +5,19 @@ namespace App\Services\Normalization;
 /** Feeds deliver HTML from strangers. Nothing but plain text gets stored. */
 class TextCleaner
 {
+    private const MAX_BYTES = 102400;
+
     public static function plain(string $html): string
     {
+        // Past the regex limits a preg call returns null and the text is lost. Bad bytes do the same under /u.
+        $html = mb_scrub(mb_strcut($html, 0, self::MAX_BYTES, 'UTF-8'), 'UTF-8');
         $text = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#si', ' ', $text);
         $text = preg_replace('#<li\b[^>]*>#i', "\n- ", $text);
         $text = preg_replace('#<br\s*/?>|</(p|div|h[1-6]|ul|ol|li|tr)>#i', "\n", $text);
         $text = strip_tags($text);
-        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Doubly encoded markup only becomes markup at this second decode.
+        $text = strip_tags(html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         $text = preg_replace('/[^\S\n]+/u', ' ', $text);
         $text = preg_replace('/ ?\n ?/', "\n", $text);
         $text = preg_replace('/\n{3,}/', "\n\n", $text);

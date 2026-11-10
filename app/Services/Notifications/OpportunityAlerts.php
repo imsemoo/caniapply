@@ -16,7 +16,7 @@ class OpportunityAlerts
     /** Called after every evaluation. Safe to call repeatedly for the same job. */
     public function afterEvaluation(Opportunity $job): void
     {
-        if (! $this->bot->isConfigured()) {
+        if (! $this->bot->isConfigured() || $job->primarySource?->key === 'demo') {
             return;
         }
 
@@ -31,7 +31,7 @@ class OpportunityAlerts
         }
 
         // Change alerts that failed earlier get another chance here.
-        Opportunity::query()->whereHas('changes', fn ($q) => $q->whereNull('alerted_at'))->each(fn (Opportunity $job) => $this->sendPendingChanges($job));
+        Opportunity::query()->withoutDemo()->whereHas('changes', fn ($q) => $q->whereNull('alerted_at'))->each(fn (Opportunity $job) => $this->sendPendingChanges($job));
 
         $threshold = CandidateProfile::current()->thresholds['digest'];
         $eligible = $this->digestCandidates($threshold);
@@ -40,11 +40,11 @@ class OpportunityAlerts
         $undisclosed = $eligible->filter(fn (Opportunity $j) => $j->bucket === Bucket::Undisclosed)->take(8)->values();
         $top = $eligible->filter(fn (Opportunity $j) => $j->bucket === Bucket::Qualified && ! $j->isFreelance())->take(12)->values();
 
-        $flagged = Opportunity::query()->active()->where('bucket', Bucket::Flagged->value)->where('first_seen_at', '>=', now()->subDay())->count();
+        $flagged = Opportunity::query()->withoutDemo()->active()->where('bucket', Bucket::Flagged->value)->where('first_seen_at', '>=', now()->subDay())->count();
 
         $message = $this->composer->digest($top, $undisclosed, $freelance, $flagged, [
-            'new_today' => Opportunity::query()->where('first_seen_at', '>=', now()->subDay())->count(),
-            'qualified_today' => Opportunity::query()->where('first_seen_at', '>=', now()->subDay())->whereIn('bucket', [Bucket::Qualified->value, Bucket::Undisclosed->value])->count(),
+            'new_today' => Opportunity::query()->withoutDemo()->where('first_seen_at', '>=', now()->subDay())->count(),
+            'qualified_today' => Opportunity::query()->withoutDemo()->where('first_seen_at', '>=', now()->subDay())->whereIn('bucket', [Bucket::Qualified->value, Bucket::Undisclosed->value])->count(),
         ]);
 
         if (! $this->bot->send($message)) {
@@ -60,7 +60,7 @@ class OpportunityAlerts
 
     private function digestCandidates(int $threshold): Collection
     {
-        return Opportunity::query()->active()
+        return Opportunity::query()->withoutDemo()->active()
             ->whereIn('bucket', [Bucket::Qualified->value, Bucket::Undisclosed->value])
             ->where('score', '>=', $threshold)
             ->where('first_seen_at', '>=', now()->subDays(7))

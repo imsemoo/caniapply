@@ -2,10 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Jobs\RefreshEligibility;
 use App\Models\CandidateProfile;
+use App\Models\Opportunity;
 use App\Services\Discovery\EligibilityRefresher;
 use App\Support\HomeCountry;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
@@ -41,6 +44,8 @@ class Settings extends Component
     public bool $saved = false;
 
     public bool $countryRechecked = false;
+
+    public bool $countryQueued = false;
 
     public function mount(): void
     {
@@ -83,6 +88,7 @@ class Settings extends Component
     {
         $this->saved = false;
         $this->countryRechecked = false;
+        $this->countryQueued = false;
         $this->validate();
 
         if (array_sum($this->weights) !== 100) {
@@ -104,23 +110,34 @@ class Settings extends Component
         $tracks['web']['project_queries'] = $this->list($this->projectQueries, "\n");
 
         $countryChanged = $profile->country !== $this->country;
+        $inline = $countryChanged && Opportunity::fitsInOneRequest();
 
-        $profile->update([
-            'full_name' => $this->full_name,
-            'headline' => $this->headline,
-            'country' => $this->country,
-            'years_experience' => $this->years_experience,
-            'tracks' => $tracks,
-            'compensation' => array_map('floatval', $this->compensation),
-            'scoring_weights' => array_map('intval', $this->weights),
-            'thresholds' => array_map('intval', $this->thresholds),
-        ]);
+        // The new country and the re-check land together, so a failure cannot leave old verdicts under a new country.
+        DB::transaction(function () use ($profile, $tracks, $countryChanged, $inline, $refresher) {
+            $profile->update([
+                'full_name' => $this->full_name,
+                'headline' => $this->headline,
+                'country' => $this->country,
+                'years_experience' => $this->years_experience,
+                'tracks' => $tracks,
+                'compensation' => array_map('floatval', $this->compensation),
+                'scoring_weights' => array_map('intval', $this->weights),
+                'thresholds' => array_map('intval', $this->thresholds),
+            ]);
 
-        if ($countryChanged) {
-            $refresher->run();
+            if ($inline) {
+                $refresher->run();
+            } elseif ($countryChanged) {
+                RefreshEligibility::dispatch();
+            }
+        });
+
+        if ($inline) {
             $this->countryRechecked = true;
             Artisan::queue('hunter:reevaluate', ['--all' => true]);
         }
+
+        $this->countryQueued = $countryChanged && ! $inline;
 
         $this->saved = true;
     }

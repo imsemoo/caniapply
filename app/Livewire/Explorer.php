@@ -109,12 +109,16 @@ class Explorer extends Component
     /** The same role posted per region shows once, as its best-scoring posting. */
     private function withoutRepeatedPostings(Builder $query): Builder
     {
-        $sameRole = "o2.title_norm = opportunities.title_norm and o2.company_norm = opportunities.company_norm and o2.bucket = opportunities.bucket and (o2.lifecycle in ('expired', 'closed')) = (opportunities.lifecycle in ('expired', 'closed'))";
+        $rejected = ApplicationStatus::Rejected->value;
+        // A posting you turned down must not stand in for its siblings, and one you are tracking must stay in sight.
+        $turnedDown = $this->view === 'rejected' ? '' : " and not exists (select 1 from applications a where a.opportunity_id = o2.id and a.status = '{$rejected}')";
+        $tracked = "exists (select 1 from applications a where a.opportunity_id = o2.id and a.status != '{$rejected}')";
+        $sameRole = "o2.title_norm = opportunities.title_norm and o2.company_norm = opportunities.company_norm and o2.bucket = opportunities.bucket and (o2.lifecycle in ('expired', 'closed')) = (opportunities.lifecycle in ('expired', 'closed')){$turnedDown}";
 
         return $query
             ->select('opportunities.*')
             ->selectRaw("(select count(*) from opportunities o2 where {$sameRole}) as similar_count")
-            ->whereRaw("(coalesce(opportunities.company_norm, '') = '' or opportunities.id = (select o2.id from opportunities o2 where {$sameRole} order by o2.score desc, o2.id limit 1))");
+            ->whereRaw("(coalesce(opportunities.company_norm, '') = '' or opportunities.id = (select o2.id from opportunities o2 where {$sameRole} order by {$tracked} desc, o2.score desc, o2.id limit 1))");
     }
 
     private function hasFreelanceJobs(): bool

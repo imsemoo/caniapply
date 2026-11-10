@@ -61,7 +61,7 @@
         <div class="form-foot">
             <button type="submit" class="btn primary" wire:loading.attr="disabled" wire:target="save">{{ __('Save settings') }}</button>
             <button type="button" class="btn" wire:click="rescoreAll">{{ __('Re-score every open job') }}</button>
-            @if ($saved)<span class="ok" role="status">{{ $countryRechecked ? __('Saved. Open jobs were re-checked for the new country.') : __('Saved. New jobs use these settings.') }}</span>@endif
+            @if ($saved)<span class="ok" role="status">{{ $countryQueued ? __('Saved. Open jobs are being re-checked for the new country in the background.') : ($countryRechecked ? __('Saved. Open jobs were re-checked for the new country.') : __('Saved. New jobs use these settings.')) }}</span>@endif
         </div>
     </form>
 </div>

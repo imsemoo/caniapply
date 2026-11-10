@@ -20,11 +20,11 @@ class EligibilityDetector
     private const ARAB_PLACES = 'مصر|القاهرة|السعودية|الرياض|جدة|الإمارات|دبي|الكويت|قطر|عمان|البحرين|الأردن|تركيا|لبنان|العراق|المغرب|تونس|الجزائر|فلسطين|ليبيا|السودان|اليمن|سوريا';
 
     /** "The salary range is for US residents" limits the pay information, not who may apply. */
-    private const ABOUT_PAY = '/\b(?:salary|base pay|pay (?:range|band|scale)|compensation (?:range|package)|benefits?|medical|dental|health insurance|401\(?k\)?)\b/i';
+    private const ABOUT_PAY = '/\b(?:salary|base pay|pay (?:range|band|scale)|compensation (?:range|package)|benefits?|(?:medical|dental|vision|health)(?:\s*(?:and|&|,)\s*\w+)?\s+(?:coverage|insurance|plans?|care)|401\(?k\)?)\b/i';
 
     private const WORLD = '/\b(anywhere|world[\s-]?wide|global|globally|all countries|any country|any location)\b|من أي مكان|أي دولة|جميع الدول/i';
 
-    private const EUROPE = '/\beurope(an)?\b|\beu\b|european union|\beea\b|\bcet\b|\bcest\b|germany|france|spain|portugal|netherlands|poland|romania|italy|ireland|sweden|norway|denmark|finland|austria|belgium|switzerland|czech|hungary|greece|bulgaria|croatia|serbia|ukraine|estonia|latvia|lithuania|united kingdom|\buk\b|england|scotland|london|berlin|munich|hamburg|amsterdam|paris|madrid|barcelona|lisbon|warsaw|dublin/i';
+    private const EUROPE = '/\beurope(an)?\b|\beu\b|european union|\beea\b|\bcet\b|\bcest\b|germany|france|spain|portugal|netherlands|poland|romania|italy|ireland|sweden|norway|denmark|finland|austria|belgium|switzerland|czech|hungary|greece|bulgaria|croatia|serbia|ukraine|estonia|latvia|lithuania|united kingdom|\buk\b|(?<!new )england|scotland|london|berlin|munich|hamburg|amsterdam|paris|madrid|barcelona|lisbon|warsaw|dublin/i';
 
     private const AMERICAS = '/\busa?\b|u\.s\.|united states|\bamericas?\b|north america|canada|new york|\bnyc\b|san francisco|california|texas|seattle|boston|chicago|toronto|vancouver|latam|latin america|south america|brazil|mexico|argentina|colombia/i';
 
@@ -86,7 +86,7 @@ class EligibilityDetector
             }
 
             return $restriction !== null
-                ? new EligibilityFinding(Scope::Unknown, Eligibility::Unknown, 'The source lists your country, but the post says: '.$restriction, $timezoneNote, $relocation)
+                ? new EligibilityFinding(Scope::Unknown, Eligibility::Unknown, 'The source lists your country, but the '.lcfirst($restriction), $timezoneNote, $relocation)
                 : $this->withTimezone(new EligibilityFinding($raw->sourceScope ?? Scope::MultiCountry, Eligibility::Eligible, $raw->sourceEvidence, $timezoneNote, $relocation));
         }
 
@@ -103,7 +103,8 @@ class EligibilityDetector
             return $this->withTimezone(new EligibilityFinding(Scope::Worldwide, Eligibility::Eligible, 'Post says: "'.$match[0].'"', $timezoneNote, $relocation));
         }
 
-        if (preg_match('/[^.\n]{0,60}\b(?:hiring|candidates?|based|located|living|remote)\b[^.\n]{0,60}(?:\b(?:in|from|within|across)\s+(?:the\s+)?|[,:-]\s*)(?:'.$this->home->pattern.')[^.\n]{0,30}/iu', $text, $match)) {
+        if (preg_match('/[^.\n]{0,60}\b(?:hiring|candidates?|applicants?|remote|(?:must|should|need to|you)\b[^.\n]{0,20}\b(?:based|located|living))\b[^.\n]{0,60}(?:\b(?:in|from|within|across)\s+(?:the\s+)?|[,:-]\s*)(?:'.$this->home->pattern.')[^.\n]{0,30}/iu', $text, $match)
+            && ! preg_match('/\b(?:company|startup|headquarter\w*|hq|offices?|founded|agency|studio)\b/i', $match[0])) {
             return new EligibilityFinding(Scope::SpecificCountries, Eligibility::Eligible, 'Post says: "'.trim($match[0]).'"', $timezoneNote, $relocation);
         }
 
@@ -128,8 +129,12 @@ class EligibilityDetector
             return $raw->sourceScope === Scope::Worldwide ? [Scope::Worldwide, Eligibility::Eligible] : null;
         }
 
-        if (preg_match('/\b(?:except|excluding|not available in)\b(.*)/iu', $location, $except) && ($this->home->isNamedIn($except[1]) || $this->home->regionNamedIn($except[1]) !== null)) {
-            return [Scope::MultiCountry, Eligibility::Excluded];
+        if (preg_match('/^(.*?)\b(?:except|excluding|not available in)\b(.*)/iu', $location, $except)) {
+            if (! $this->home->isNamedIn($except[1]) && ($this->home->isNamedIn($except[2]) || $this->home->regionNamedIn($except[2]) !== null)) {
+                return [Scope::MultiCountry, Eligibility::Excluded];
+            }
+
+            $location = trim($except[1]);
         }
 
         if ($this->home->isLocation($location)) {
@@ -201,7 +206,7 @@ class EligibilityDetector
             return ['scope' => Scope::Onsite, 'evidence' => 'Listing location: '.($location !== '' ? $location : 'on-site'), 'from_body' => false];
         }
 
-        if ($raw->remote === null && $location !== '' && ! preg_match('/remote|عن ب|anywhere|world[\s-]?wide|global|\b(?:emea|mena|apac|latam|europe|americas|africa|asia)\b/i', $location)) {
+        if ($raw->remote === null && $location !== '' && ! preg_match('/remote|عن ب|anywhere|world[\s-]?wide|global|\b(?:emea|mena|apac|latam|europe|americas?|africa|asia|eu|eea|european union|middle east)\b/i', $location)) {
             return ['scope' => Scope::Onsite, 'evidence' => 'Listing gives a place and does not say remote: '.$location, 'from_body' => false];
         }
 
@@ -215,8 +220,9 @@ class EligibilityDetector
         $patterns = [
             '/(?i:(?:must|need to|required to|have to)\s+(?:be\s+)?(?:currently\s+|legally\s+)?(?:based|located|living|residing|reside|live)\b|only (?:open|available|accepting|hiring|considering)|authori[sz]ed to work in|right to work in|work authori[sz]ation (?:in|for)|eligible to work in|citizens? of|resident of|residents of)[^.\n]{0,50}?\b'.$anyCountry.'(?![a-zA-Z])/u',
             '/(?i:candidates?|applicants?|you)[^.\n]{0,30}(?i:located|based|residing|living) (?i:in|within)[^.\n]{0,25}?\b'.$anyCountry.'(?![a-zA-Z])/u',
-            '/\b'.self::REGION_TOKENS.'[\s-]*(?i:only|residents?|citizens?)\b/',
-            '/\b'.self::REGION_TOKENS.'[\s-](?i:based)\b(?!\s+(?i:company|startup|team|business|firm|clients?|customers?|agency|organi[sz]ation))/',
+            '/\b'.$anyCountry.'[\s-]*(?i:only|residents?|citizens?)\b/u',
+            '/\b'.self::REGION_TOKENS.'[\s-](?i:based)\b(?!\s+(?i:company|startup|team|business|firm|clients?|customers?|agency|organi[sz]ation|fintech|scale-?up|saas|platform|product|brand|bank|group|employer|provider))/u',
+            '/\b'.$anyCountry.'[\s-](?i:based)\s+(?i:roles?|positions?|jobs?|candidates?|applicants?|developers?|engineers?|only)\b/u',
             '/(?i:remote)(?:\s+(?i:position|role|job|opportunity))?\s+(?i:in|within)\s+'.$anyCountry.'(?![a-zA-Z])/u',
         ];
 
@@ -232,13 +238,18 @@ class EligibilityDetector
             preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE);
 
             foreach ($matches[0] as [$found, $offset]) {
-                $sentence = $this->sentenceAround($text, $offset, strlen($found));
+                [$start, $end] = $this->sentenceBounds($text, $offset, strlen($found));
+                $sentence = substr($text, $start, $end - $start);
 
-                if ($this->home->isCoveredBy($sentence) || $this->home->isCoveredBy($found) || preg_match(self::ABOUT_PAY, $sentence)) {
+                // "Must live in the US and get our dental plan" still restricts. "US-based staff get dental" does not.
+                $aboutPay = preg_match(self::ABOUT_PAY, substr($text, $start, $offset - $start))
+                    || (! preg_match('/\b(?:must|need to|required to|have to|only)\b/i', $sentence) && preg_match(self::ABOUT_PAY, substr($text, $offset + strlen($found), $end - $offset - strlen($found))));
+
+                if ($this->home->isCoveredBy($sentence) || $aboutPay) {
                     continue;
                 }
 
-                return 'Post says: "'.$sentence.'"';
+                return 'Post says: "'.$this->quoted($sentence).'"';
             }
         }
 
@@ -247,10 +258,30 @@ class EligibilityDetector
 
     private function sentenceAround(string $text, int $offset, int $length): string
     {
-        $start = max(strrpos(substr($text, 0, $offset), "\n") ?: 0, strrpos(substr($text, 0, $offset), '. ') ?: 0);
-        $end = strcspn($text, ".\n", $offset + $length) + $offset + $length;
+        [$start, $end] = $this->sentenceBounds($text, $offset, $length);
 
-        return trim(mb_strcut($text, $start, min($end - $start, 240)), " .\n");
+        return $this->quoted(substr($text, $start, $end - $start));
+    }
+
+    /** @return array{0: int, 1: int} byte offsets of the sentence holding the match */
+    private function sentenceBounds(string $text, int $offset, int $length): array
+    {
+        // The dots of "U.S." and "e.g." end nothing, unless a new sentence follows.
+        $masked = preg_replace_callback(
+            '/\b(?:U\.S\.A|U\.S|U\.K|e\.g|i\.e)(?:\.(?!\s+[A-Z]|\s*\z))?/',
+            fn (array $match) => str_replace('.', '_', $match[0]),
+            $text,
+        );
+
+        $start = preg_match('/^.*(?:\n|(?:\.|!|\?|؟)(?=\s))/s', substr($masked, 0, $offset), $before) ? strlen($before[0]) : 0;
+        $end = preg_match('/\n|(?:\.|!|\?|؟)(?=\s|\z)/', $masked, $after, PREG_OFFSET_CAPTURE, $offset + $length) ? $after[0][1] : strlen($text);
+
+        return [$start, $end];
+    }
+
+    private function quoted(string $sentence): string
+    {
+        return trim(mb_strcut(trim($sentence), 0, 240), " .\n");
     }
 
     private function timezoneNote(string $text): ?string
@@ -263,7 +294,7 @@ class EligibilityDetector
             return $this->zoneNote(8, 11, 'Needs overlap with APAC hours', $match[0]);
         }
 
-        if (preg_match('/\b(?:UTC|GMT)\s*([+\-−–]\s*\d{1,2})(?:\s*(?:to|and|-|–)\s*(?:UTC|GMT)?\s*([+\-−–]\s*\d{1,2}))?/', $text, $match)) {
+        if (preg_match('/\b(?:UTC|GMT)\s*([+\-−–]\s*\d{1,2})(?:\s*(?:to|and|-|–)\s*(?:UTC|GMT)?\s*([+\-−–]\s*\d{1,2}))?/u', $text, $match)) {
             $low = $this->offset($match[1]);
             $high = isset($match[2]) ? $this->offset($match[2]) : $low;
             [$low, $high] = [min($low, $high), max($low, $high)];

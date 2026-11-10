@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\JobSource;
 use App\Models\MarketReport;
 use App\Services\Notifications\MessageComposer;
 use App\Services\Notifications\TelegramBot;
@@ -16,6 +17,12 @@ class HunterWeeklyReport extends Command
 
     public function handle(MarketAnalytics $analytics, MessageComposer $composer, TelegramBot $bot): int
     {
+        if (JobSource::query()->where('key', 'demo')->exists()) {
+            $this->info('Only demo data so far, so there is nothing to report.');
+
+            return self::SUCCESS;
+        }
+
         $to = now();
         $from = $to->copy()->subDays(7);
         $figures = $analytics->weeklyFigures($from, $to);

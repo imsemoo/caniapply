@@ -27,6 +27,7 @@
         </form>
     </aside>
     <main class="main">
+        @if (session('language_rewriting'))<p class="notice" role="status">{{ __('Your language is saved. The reasons on each job are being rewritten in the background.') }}</p>@endif
         {{ $slot }}
     </main>
 </div>

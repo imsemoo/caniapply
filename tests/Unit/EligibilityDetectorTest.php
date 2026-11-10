@@ -7,6 +7,7 @@ use App\Enums\RemoteScope as Scope;
 use App\Services\Normalization\EligibilityDetector;
 use App\Sources\RawListing;
 use App\Support\HomeCountry;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class EligibilityDetectorTest extends TestCase
@@ -310,6 +311,87 @@ class EligibilityDetectorTest extends TestCase
         $body = 'We have a flexible hybrid work environment, allowing you to choose your days.';
 
         $this->assertSame('Post says: "'.rtrim($body, '.').'"', $this->fromCountry2Evidence($body));
+    }
+
+    public static function reviewedListings(): array
+    {
+        $plain = 'Good role.';
+
+        return [
+            ['Canada', 'New York, NY, San Francisco, CA', $plain, true, 'Dev', 'excluded'],
+            ['United States', 'New York, NY, San Francisco, CA', $plain, true, 'Dev', 'eligible'],
+            ['Morocco', 'New York, NY, Boston, MA', $plain, true, 'Dev', 'excluded'],
+            ['Germany', 'DE, FR, NL', $plain, true, 'Dev', 'eligible'],
+            ['India', 'Indianapolis, IN', $plain, true, 'Dev', 'excluded'],
+            ['United States', 'Indianapolis, IN', $plain, true, 'Dev', 'eligible'],
+            ['Indonesia', 'Boise, ID', $plain, true, 'Dev', 'excluded'],
+            ['Germany', 'Berlin, DE', $plain, true, 'Dev', 'eligible'],
+            ['Egypt', 'Anywhere in the World', 'You must be authorized to work in the United States and can work from anywhere in the country.', true, 'Dev', 'excluded'],
+            ['Egypt', 'Worldwide', 'You must be located in the United States and eligible for our medical and dental plans.', true, 'Dev', 'excluded'],
+            ['Egypt', 'Worldwide', $plain, true, 'Medical Imaging Developer - US Only', 'excluded'],
+            ['Canada', 'North America', $plain, null, 'Dev', 'likely'],
+            ['Germany', 'EU', $plain, null, 'Dev', 'likely'],
+            ['Egypt', 'Middle East', $plain, null, 'Dev', 'likely'],
+            ['United States', 'United States except California', $plain, true, 'Dev', 'eligible'],
+            ['Germany', 'Munich, BY', $plain, true, 'Dev', 'eligible'],
+            ['Brazil', 'Curitiba, PR', $plain, true, 'Dev', 'eligible'],
+            ['Serbia', 'Porto Alegre, RS', $plain, true, 'Dev', 'excluded'],
+            ['Croatia', 'Gurugram, HR', $plain, true, 'Dev', 'excluded'],
+            ['Saudi Arabia', 'Adelaide, SA', $plain, true, 'Dev', 'excluded'],
+            ['United States', 'Toronto, CA', $plain, true, 'Dev', 'excluded'],
+            ['Canada', 'Mississauga, CA', $plain, true, 'Dev', 'eligible'],
+            ['Colombia', 'Cali, CO', $plain, true, 'Dev', 'eligible'],
+            ['Austria', 'Vienna, VA', $plain, true, 'Dev', 'excluded'],
+            ['Canada', 'Vancouver, WA', $plain, true, 'Dev', 'excluded'],
+            ['Switzerland', 'Geneva, IL', $plain, true, 'Dev', 'excluded'],
+            ['Australia', 'Sydney, NSW', $plain, true, 'Dev', 'eligible'],
+            ['United Kingdom', 'New South Wales', $plain, true, 'Dev', 'excluded'],
+            ['United Kingdom', 'New England', $plain, true, 'Dev', 'excluded'],
+            ['Germany', 'Remote', 'Acme is a SaaS company based in Berlin.', true, 'Dev', 'unknown'],
+            ['Germany', 'Remote', 'Our team is based in Germany.', true, 'Dev', 'unknown'],
+            ['Egypt', 'Worldwide', 'Singapore residents only.', true, 'Dev', 'excluded'],
+            ['Germany', 'Leipzig, DE', $plain, true, 'Dev', 'eligible'],
+            ['Germany', 'Remote, DE', $plain, true, 'Dev', 'eligible'],
+            ['United States', 'Leipzig, DE', $plain, true, 'Dev', 'excluded'],
+            ['India', 'Ahmedabad, IN', $plain, true, 'Dev', 'eligible'],
+            ['Indonesia', 'Bandung, ID', $plain, true, 'Dev', 'eligible'],
+            ['United States', 'Wilmington, DE', $plain, true, 'Dev', 'eligible'],
+            ['Germany', 'Wilmington, DE', $plain, true, 'Dev', 'excluded'],
+            ['Canada', 'US, Canada', $plain, true, 'Dev', 'eligible'],
+            ['United States', 'US, Canada', $plain, true, 'Dev', 'eligible'],
+            ['Germany', 'UK, Germany', $plain, true, 'Dev', 'eligible'],
+            ['Canada', 'Remote, US, Canada', $plain, true, 'Dev', 'eligible'],
+            ['Egypt', 'US, Canada', $plain, true, 'Dev', 'excluded'],
+            ['Egypt', 'Cairo, GA, United States', $plain, true, 'Dev', 'excluded'],
+            ['United States', 'SF, CA', $plain, true, 'Dev', 'eligible'],
+            ['Canada', 'LA, CA', $plain, true, 'Dev', 'excluded'],
+            ['Germany', 'DE, CA', $plain, true, 'Dev', 'eligible'],
+            ['Canada', 'Bratislava, SK', $plain, true, 'Dev', 'excluded'],
+            ['Canada', 'Saskatoon, SK', $plain, true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'For US-based candidates, the base salary range is $120k-$150k.', true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'US-based employees are eligible for medical and 401(k).', true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'For California residents, the salary range is $100k.', true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'Acme is a Berlin-based fintech.', true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'We are a London-based scale-up.', true, 'Dev', 'eligible'],
+            ['Egypt', 'Worldwide', 'This is a Germany-based role.', true, 'Dev', 'excluded'],
+            ['Egypt', 'Worldwide', 'This is a Berlin-based role.', true, 'Dev', 'excluded'],
+            ['Egypt', 'Worldwide', 'Medical coverage is offered in the U.S. for U.S.-based staff.', true, 'Dev', 'eligible'],
+        ];
+    }
+
+    #[DataProvider('reviewedListings')]
+    public function test_reviewed_listings_get_the_right_verdict(string $country, string $location, string $body, ?bool $remote, string $title, string $expected): void
+    {
+        $raw = new RawListing(externalId: '1', url: 'https://example.com/1', title: $title, location: $location, description: $body, remote: $remote);
+
+        $this->assertSame($expected, (new EligibilityDetector(HomeCountry::named($country)))->detect($raw, $body)->country->value);
+    }
+
+    public function test_a_timezone_written_with_a_true_minus_sign_is_read(): void
+    {
+        $raw = new RawListing(externalId: '1', url: 'https://example.com/1', title: 'Dev', location: 'Worldwide', description: 'Must work UTC−5 hours.', remote: true);
+
+        $this->assertSame('Needs hours far from your time zone (UTC−5)', (new EligibilityDetector(HomeCountry::named('Egypt')))->detect($raw, 'Must work UTC−5 hours.')->timezoneNote);
     }
 
     private function fromCountry2Evidence(string $body): ?string

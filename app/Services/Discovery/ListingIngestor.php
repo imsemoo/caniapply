@@ -56,7 +56,7 @@ class ListingIngestor
             ->first();
 
         if ($existing !== null) {
-            return $this->refresh($existing, $normalized);
+            return $this->refresh($existing, $normalized, $profile);
         }
 
         if ($raw->postedAt !== null && $raw->postedAt->lt(now()->subDays(config('hunter.discovery.max_age_days')))) {
@@ -140,9 +140,9 @@ class ListingIngestor
         return $opportunity;
     }
 
-    private function refresh(OpportunityListing $existing, NormalizedListing $listing): string
+    private function refresh(OpportunityListing $existing, NormalizedListing $listing, CandidateProfile $profile): string
     {
-        $changed = DB::transaction(function () use ($existing, $listing) {
+        $changed = DB::transaction(function () use ($existing, $listing, $profile) {
             $now = now();
             $opportunity = $existing->opportunity;
 
@@ -159,9 +159,23 @@ class ListingIngestor
             // A partial listing proves the job is still up and says nothing about its content.
             if ($listing->raw->isPartial || $unchanged || ! $isPrimary) {
                 $existing->update(['last_seen_at' => $now] + ($listing->raw->isPartial ? [] : ['content_hash' => $listing->contentHash]));
+
+                // After a country change the text has not moved, but a country-filtered source can now confirm the job.
+                $confirmed = $isPrimary
+                    && ! $listing->raw->isPartial
+                    && $listing->raw->sourceEligibility !== null
+                    && $opportunity->country_eligibility === CountryEligibility::Unknown
+                    && $listing->eligibility->country !== CountryEligibility::Unknown
+                    // A search already running when the country changed filtered by the old one.
+                    && $profile->country === CandidateProfile::current()->country;
+
+                if ($confirmed) {
+                    $updates += array_intersect_key($listing->attributes(), array_flip(self::ELIGIBILITY_FIELDS)) + ['needs_evaluation' => true];
+                }
+
                 $opportunity->update($updates);
 
-                return null;
+                return $confirmed ? $opportunity : null;
             }
 
             $this->recordSalaryChange($opportunity, $listing);
