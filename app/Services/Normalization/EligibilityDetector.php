@@ -122,7 +122,7 @@ class EligibilityDetector
             : $finding;
     }
 
-    /** @return array{0: Scope, 1: Egypt}|null */
+    /** @return array{0: Scope, 1: Eligibility}|null */
     private function fromLocation(string $location, RawListing $raw): ?array
     {
         if ($location === '' || preg_match('/^(remote|fully remote|100% remote)$/i', $location)) {

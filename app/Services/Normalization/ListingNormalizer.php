@@ -126,7 +126,7 @@ class ListingNormalizer
 
     /**
      * Hourly, daily and weekly rates only become a monthly figure when the
-     * working pattern is known. For contracts the brief forbids assuming it.
+     * working pattern is known. For contracts it is never assumed.
      */
     private function monthlyFactor(string $period, EmploymentType $employment, string $description): ?float
     {

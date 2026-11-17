@@ -6,7 +6,11 @@ The most useful help is a job post that gets the wrong verdict for your country.
 
 **Adding a source:** add a class in `app/Sources/Connectors` and a line in `config/hunter.php`. Link to the source's terms in your pull request. Sources that forbid automated reading will not be merged.
 
-Run the tests before you open a pull request:
+Run the style check and the tests before you open a pull request:
+
+```bash
+vendor/bin/pint --test
+```
 
 ```bash
 php artisan test

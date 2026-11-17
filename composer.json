@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "imsemoo/caniapply",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Reads remote job posts and shows whether you can apply from your country, with the sentence that proves it.",
+    "keywords": ["remote-jobs", "job-search", "laravel", "livewire", "self-hosted"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
@@ -40,10 +40,6 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan key:generate",
             "@php artisan migrate --force"
-        ],
-        "dev": [
-            "Composer\\Config::disableProcessTimeout",
-            "@php artisan dev"
         ],
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",

@@ -6,14 +6,13 @@ use App\Enums\CountryEligibility;
 use App\Enums\Lifecycle;
 use App\Enums\RemoteScope;
 use App\Models\CandidateProfile;
-use App\Models\Opportunity;
 use App\Models\OpportunityListing;
 use App\Services\Discovery\DiscoveryRunner;
 use App\Services\Discovery\ListingRechecker;
+use App\Sources\Connectors\GreenhouseSource;
 use App\Sources\Connectors\HimalayasSource;
 use App\Sources\Connectors\LaraJobsSource;
 use App\Sources\Connectors\WeWorkRemotelySource;
-use App\Sources\SourceFetchFailed;
 use App\Sources\SourceHttp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -81,7 +80,7 @@ class SourcesTest extends TestCase
             'boards-api.greenhouse.io/v1/boards/live/*' => Http::response(['jobs' => [['id' => 1, 'absolute_url' => 'https://g.example/1', 'title' => 'PHP Dev', 'content' => 'x']]]),
         ]);
 
-        $this->assertCount(1, $this->collect(\App\Sources\Connectors\GreenhouseSource::class, ['boards' => ['dead', 'live']]));
+        $this->assertCount(1, $this->collect(GreenhouseSource::class, ['boards' => ['dead', 'live']]));
     }
 
     public function test_a_dead_board_marks_the_source_degraded_and_blocks_closures(): void
@@ -175,7 +174,7 @@ class SourcesTest extends TestCase
     public function test_recheck_skips_listings_from_a_disabled_source(): void
     {
         Http::fake();
-        $source = $this->source('freelancer');
+        $source = $this->source('remotive');
         $source->update(['enabled' => false]);
         $this->opportunity(['score' => 90, 'primary_source_id' => $source->id, 'primary_url' => 'https://93.184.216.34/off']);
 
@@ -188,7 +187,7 @@ class SourcesTest extends TestCase
     {
         Http::fake();
 
-        foreach (['http://127.0.0.1/admin', 'http://169.254.169.254/latest/meta-data', 'http://10.0.0.5/', 'http://[::1]/'] as $url) {
+        foreach (['http://127.0.0.1/admin', 'http://169.254.169.254/latest/meta-data', 'http://10.0.0.5/', 'http://100.64.0.1/', 'http://[::1]/'] as $url) {
             $this->assertNull(app(SourceHttp::class)->statusOf($url), $url);
         }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Bucket;
 use App\Models\Alert;
+use App\Models\CandidateProfile;
 use App\Models\OpportunityChange;
 use App\Services\Evaluation\OpportunityEvaluator;
 use App\Services\Notifications\OpportunityAlerts;
@@ -13,6 +14,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Tests\Feature\Concerns\BuildsOpportunities;
 use Tests\TestCase;
 
@@ -63,7 +65,7 @@ class TelegramAlertsTest extends TestCase
 
     public function test_threshold_is_configurable(): void
     {
-        $profile = \App\Models\CandidateProfile::current();
+        $profile = CandidateProfile::current();
         $profile->update(['thresholds' => ['immediate' => 70] + $profile->thresholds]);
 
         $job = $this->scored();
@@ -219,14 +221,14 @@ class TelegramAlertsTest extends TestCase
         mkdir($directory);
         file_put_contents($directory.'/.env', "APP_NAME=x\nTELEGRAM_BOT_TOKEN=\nTELEGRAM_CHAT_ID=\n");
         $this->app->useEnvironmentPath($directory);
-        \Illuminate\Support\Str::createRandomStringsUsing(fn () => 'CODE1234');
+        Str::createRandomStringsUsing(fn () => 'CODE1234');
 
         $this->artisan('hunter:telegram --setup')
             ->expectsQuestion('Paste the token from BotFather (it stays hidden)', '123456:ABCDEFGHIJKLMNOPQRSTUVWXYZ')
             ->expectsConfirmation('Connect alerts to Owner?', 'yes')
             ->assertSuccessful();
 
-        \Illuminate\Support\Str::createRandomStringsNormally();
+        Str::createRandomStringsNormally();
 
         $env = file_get_contents($directory.'/.env');
         $this->assertStringContainsString('TELEGRAM_BOT_TOKEN=123456:ABCDEFGHIJKLMNOPQRSTUVWXYZ', $env);
