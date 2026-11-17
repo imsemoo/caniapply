@@ -74,7 +74,8 @@ class SourceHttp
         }
 
         foreach ($addresses as $address) {
-            if (! filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            // 100.64.0.0/10 is carrier and VPN address space, which the filter flags do not cover.
+            if (! filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) || preg_match('/^100\.(?:6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./', $address)) {
                 return false;
             }
         }
