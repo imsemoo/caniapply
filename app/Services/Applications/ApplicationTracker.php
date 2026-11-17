@@ -6,7 +6,7 @@ use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\Opportunity;
 
-/** Records what the owner did himself. Nothing here contacts an employer. */
+/** Records what you did yourself. Nothing here contacts an employer. */
 class ApplicationTracker
 {
     public function setStatus(Opportunity $opportunity, ApplicationStatus $status): Application

@@ -30,7 +30,7 @@ final class HomeCountry
     /** "Anywhere in the country" is not the world. */
     private const WORLD_WORDS = 'worldwide|anywhere(?!\s+(?:in|within|across)\s+(?!the\s+world))';
 
-    private const ARAB_LEAGUE = ['mena', 'emea'];
+    private const MIDDLE_EAST = ['mena', 'emea'];
 
     private const AFRICAN = ['africa', 'emea'];
 
@@ -52,7 +52,7 @@ final class HomeCountry
         'Argentina' => ['AR', -3, self::LATIN, '\b(?:argentina|buenos aires)\b'],
         'Australia' => ['AU', 10, self::OCEANIA, '\b(?:australia|sydney(?!,?\s*(?:ns\b|nova))|melbourne(?!,?\s*(?:fl|florida))|brisbane|adelaide|perth|new south wales)\b'],
         'Austria' => ['AT', 1, self::EU_MEMBER, '\b(?:austria|vienna(?!,?\s*(?:va|virginia)\b))\b'],
-        'Bahrain' => ['BH', 3, self::ARAB_LEAGUE, '\b(?:bahrain|manama)\b|البحرين'],
+        'Bahrain' => ['BH', 3, self::MIDDLE_EAST, '\b(?:bahrain|manama)\b|البحرين'],
         'Bangladesh' => ['BD', 6, self::ASIA_PACIFIC, '\b(?:bangladesh|dhaka)\b'],
         'Belgium' => ['BE', 1, self::EU_MEMBER, '\b(?:belgium|brussels)\b'],
         'Brazil' => ['BR', -3, self::LATIN, '\b(?:brazil|brasil|são paulo|sao paulo|rio de janeiro|curitiba|porto alegre|belo horizonte)\b'],
@@ -75,15 +75,15 @@ final class HomeCountry
         'Hungary' => ['HU', 1, self::EU_MEMBER, '\b(?:hungary|budapest)\b'],
         'India' => ['IN', 5, self::ASIA_PACIFIC, '\b(?:india|bengaluru|bangalore|mumbai|delhi|hyderabad|pune|chennai|gurugram|gurgaon|noida|kolkata)\b'],
         'Indonesia' => ['ID', 7, self::ASIA_PACIFIC, '\b(?:indonesia|jakarta)\b'],
-        'Iraq' => ['IQ', 3, self::ARAB_LEAGUE, '\b(?:iraq|baghdad)\b|العراق|بغداد'],
+        'Iraq' => ['IQ', 3, self::MIDDLE_EAST, '\b(?:iraq|baghdad)\b|العراق|بغداد'],
         'Ireland' => ['IE', 0, self::EU_MEMBER, '\b(?:ireland|dublin(?!,?\s*(?:oh|ohio|ca|california)))\b'],
         'Italy' => ['IT', 1, self::EU_MEMBER, '\b(?:italy|milan|rome(?!,?\s*(?:ga|georgia|ny)))\b'],
         'Japan' => ['JP', 9, self::ASIA_PACIFIC, '\b(?:japan|tokyo)\b'],
-        'Jordan' => ['JO', 3, self::ARAB_LEAGUE, '\b(?:jordan|amman)\b|الأردن|عمّان|عمان'],
+        'Jordan' => ['JO', 3, self::MIDDLE_EAST, '\b(?:jordan|amman)\b|الأردن|عمّان|عمان'],
         'Kenya' => ['KE', 3, self::AFRICAN, '\b(?:kenya|nairobi)\b'],
-        'Kuwait' => ['KW', 3, self::ARAB_LEAGUE, '\bkuwait\b|الكويت'],
+        'Kuwait' => ['KW', 3, self::MIDDLE_EAST, '\bkuwait\b|الكويت'],
         'Latvia' => ['LV', 2, self::EU_MEMBER, '\b(?:latvia|riga)\b'],
-        'Lebanon' => ['LB', 2, self::ARAB_LEAGUE, '\b(?:lebanon|beirut)\b|لبنان|بيروت'],
+        'Lebanon' => ['LB', 2, self::MIDDLE_EAST, '\b(?:lebanon|beirut)\b|لبنان|بيروت'],
         'Libya' => ['LY', 2, self::NORTH_AFRICAN, '\b(?:libya|tripoli(?!,?\s*lebanon))\b|ليبيا'],
         'Lithuania' => ['LT', 2, self::EU_MEMBER, '\b(?:lithuania|vilnius)\b'],
         'Malaysia' => ['MY', 8, self::ASIA_PACIFIC, '\b(?:malaysia|kuala lumpur)\b'],
@@ -94,17 +94,17 @@ final class HomeCountry
         'New Zealand' => ['NZ', 12, self::OCEANIA, '\b(?:new zealand|auckland)\b'],
         'Nigeria' => ['NG', 1, self::AFRICAN, '\b(?:nigeria|lagos|abuja)\b'],
         'Norway' => ['NO', 1, [...self::NON_EU_EUROPE, 'eea'], '\b(?:norway|oslo)\b'],
-        'Oman' => ['OM', 4, self::ARAB_LEAGUE, '\b(?:oman|muscat)\b|عمان'],
+        'Oman' => ['OM', 4, self::MIDDLE_EAST, '\b(?:oman|muscat)\b|عمان'],
         'Pakistan' => ['PK', 5, self::ASIA_PACIFIC, '\b(?:pakistan|karachi|lahore|islamabad)\b'],
-        'Palestine' => ['PS', 2, self::ARAB_LEAGUE, '\b(?:palestine|ramallah|gaza)\b|فلسطين|رام الله|غزة'],
+        'Palestine' => ['PS', 2, self::MIDDLE_EAST, '\b(?:palestine|ramallah|gaza)\b|فلسطين|رام الله|غزة'],
         'Peru' => ['PE', -5, self::LATIN, '\b(?:peru|lima(?!,?\s*(?:oh|ohio)))\b'],
         'Philippines' => ['PH', 8, self::ASIA_PACIFIC, '\b(?:philippines|manila)\b'],
         'Poland' => ['PL', 1, self::EU_MEMBER, '\b(?:poland|warsaw|krak[oó]w)\b'],
         'Portugal' => ['PT', 0, self::EU_MEMBER, '\b(?:portugal|lisbon|porto(?!\s+alegre))\b'],
-        'Qatar' => ['QA', 3, self::ARAB_LEAGUE, '\b(?:qatar|doha)\b|قطر|الدوحة'],
+        'Qatar' => ['QA', 3, self::MIDDLE_EAST, '\b(?:qatar|doha)\b|قطر|الدوحة'],
         'Romania' => ['RO', 2, self::EU_MEMBER, '\b(?:romania|bucharest)\b'],
         'Rwanda' => ['RW', 2, self::AFRICAN, '\b(?:rwanda|kigali)\b'],
-        'Saudi Arabia' => ['SA', 3, self::ARAB_LEAGUE, '\b(?:saudi(?: arabia)?|ksa|riyadh|jeddah)\b|السعودية|الرياض|جدة'],
+        'Saudi Arabia' => ['SA', 3, self::MIDDLE_EAST, '\b(?:saudi(?: arabia)?|ksa|riyadh|jeddah)\b|السعودية|الرياض|جدة'],
         'Serbia' => ['RS', 1, self::NON_EU_EUROPE, '\b(?:serbia|belgrade)\b'],
         'Singapore' => ['SG', 8, self::ASIA_PACIFIC, '\bsingapore\b'],
         'South Africa' => ['ZA', 2, self::AFRICAN, '\b(?:south africa|cape town|johannesburg)\b'],
@@ -114,18 +114,18 @@ final class HomeCountry
         'Sudan' => ['SD', 2, self::NORTH_AFRICAN, '\b(?:sudan|khartoum)\b|السودان'],
         'Sweden' => ['SE', 1, self::EU_MEMBER, '\b(?:sweden|stockholm)\b'],
         'Switzerland' => ['CH', 1, self::NON_EU_EUROPE, '\b(?:switzerland|z[üu]rich|geneva(?!,?\s*(?:il|illinois)\b))\b'],
-        'Syria' => ['SY', 3, self::ARAB_LEAGUE, '\b(?:syria|damascus)\b|سوريا|دمشق'],
+        'Syria' => ['SY', 3, self::MIDDLE_EAST, '\b(?:syria|damascus)\b|سوريا|دمشق'],
         'Tanzania' => ['TZ', 3, self::AFRICAN, '\b(?:tanzania|dar es salaam)\b'],
         'Thailand' => ['TH', 7, self::ASIA_PACIFIC, '\b(?:thailand|bangkok)\b'],
         'Tunisia' => ['TN', 1, self::NORTH_AFRICAN, '\b(?:tunisia|tunis)\b|تونس'],
-        'Turkey' => ['TR', 3, self::ARAB_LEAGUE, '\b(?:turkey|türkiye|istanbul|ankara)\b|İstanbul|Türkiye|تركيا|إسطنبول'],
+        'Turkey' => ['TR', 3, self::MIDDLE_EAST, '\b(?:turkey|türkiye|istanbul|ankara)\b|İstanbul|Türkiye|تركيا|إسطنبول'],
         'Uganda' => ['UG', 3, self::AFRICAN, '\b(?:uganda|kampala)\b'],
         'Ukraine' => ['UA', 2, self::NON_EU_EUROPE, '\b(?:ukraine|kyiv)\b'],
-        'United Arab Emirates' => ['AE', 4, self::ARAB_LEAGUE, '\b(?:uae|united arab emirates|dubai|abu dhabi)\b|الإمارات|دبي|أبوظبي'],
+        'United Arab Emirates' => ['AE', 4, self::MIDDLE_EAST, '\b(?:uae|united arab emirates|dubai|abu dhabi)\b|الإمارات|دبي|أبوظبي'],
         'United Kingdom' => ['GB', 0, self::NON_EU_EUROPE, '\b(?:united kingdom|(?<!new )england|scotland|(?<!south )wales|london(?!,?\s*(?:on|ontario)\b)|manchester(?!,?\s*(?:nh|new hampshire))|uk)\b|u\.k\.'],
         'United States' => ['US', -5, ['north_america', 'americas'], '\b(?:united states|usa|new york|nyc|new england|san francisco|california|texas|seattle|boston|chicago|(?-i:US))\b|u\.s\.|,\s*(?-i:AL|AK|AZ|AR|CA|CO|CT|FL|GA|HI|IA|IL|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY|DC)\b'],
         'Vietnam' => ['VN', 7, self::ASIA_PACIFIC, '\b(?:vietnam|hanoi|ho chi minh)\b'],
-        'Yemen' => ['YE', 3, self::ARAB_LEAGUE, '\b(?:yemen|sanaa)\b|اليمن|صنعاء'],
+        'Yemen' => ['YE', 3, self::MIDDLE_EAST, '\b(?:yemen|sanaa)\b|اليمن|صنعاء'],
     ];
 
     /** "Boston, MA" is a state. "Lille, Nord, MA" or a bare "MA" is a country code. */
