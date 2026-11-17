@@ -23,9 +23,9 @@ use App\Services\Notifications\OpportunityAlerts;
 use App\Services\Notifications\TelegramActions;
 use App\Sources\RawListing;
 use App\Support\HomeCountry;
-use App\Sources\SourceHttp;
 use FilesystemIterator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -389,7 +389,7 @@ class ArabicAndNewFeaturesTest extends TestCase
             }
 
             Http::clearResolvedInstances();
-            $this->app->forgetInstance(\Illuminate\Http\Client\Factory::class);
+            $this->app->forgetInstance(Factory::class);
         }
     }
 

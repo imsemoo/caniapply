@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Models\Opportunity;
 use App\Services\Evaluation\OpportunityEvaluator;
-use App\Services\Notifications\OpportunityAlerts;
 use App\Services\Notifications\OperatorAlerts;
+use App\Services\Notifications\OpportunityAlerts;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Throwable;

@@ -25,7 +25,7 @@ CanIApply treats that line as the most important one in the post.
 
 - **Collects** jobs from public APIs, feeds and company career pages, and merges duplicates.
 - **Decides who can apply** for 78 countries, in English and Arabic posts.
-- **Scores** each job out of 100 for your skills, seniority, pay, eligibility and the work itself. You set the weights.
+- **Scores** each job out of 100 for your skills, seniority, pay, eligibility, the work itself and room to grow. You set the weights.
 - **Never invents a salary.** An undisclosed salary is shown as undisclosed.
 - **Tells you on Telegram** when something scores high, and sends a daily digest for the rest.
 - **Tracks** what you applied to, in a private dashboard, in English or Arabic.
@@ -45,7 +45,7 @@ php artisan hunter:install --demo
 php artisan serve
 ```
 
-`hunter:install` asks for your country, then prints your login. `--demo` loads eight made-up jobs, so that you can look around right away. They disappear by themselves when the first real job arrives.
+`hunter:install` asks for your country, your name, your job title and an email for the login, then prints a password once. `--demo` loads eight made-up jobs, so that you can look around right away. They disappear by themselves when the first real job arrives.
 
 To collect real jobs, keep these two running in other terminals:
 
