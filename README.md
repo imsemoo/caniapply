@@ -9,7 +9,7 @@
 
 It runs on your own machine, needs no API key, and never applies to anything for you.
 
-![The job list, with a match score and a verdict for your country on every row](docs/screenshot-jobs.jpg)
+![The job list: a match score out of 100 and a verdict for your country on every row](docs/screenshot-jobs.jpg)
 
 ## Why
 
@@ -25,6 +25,8 @@ CanIApply treats that line as the most important one in the post.
 | Location: `EMEA` | India | Excluded |
 | Location: `Worldwide`, "must overlap with EST hours" | Egypt | Likely open, flagged as time zone bound |
 | Just "Remote" | Any | Not confirmed. It never guesses "worldwide" |
+
+![A job page: rejected because the remote role excludes your country, with the sentence from the post quoted beside the verdict](docs/screenshot-verdict.jpg)
 
 ## What it does
 
