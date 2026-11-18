@@ -1,4 +1,9 @@
-# CanIApply
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/lockup-dark.svg">
+    <img src="docs/brand/lockup-light.svg" alt="CanIApply" height="52">
+  </picture>
+</h1>
 
 **"Remote" often doesn't include your country.** CanIApply reads remote job posts, works out whether you can actually apply from where you live, and shows you the sentence that proves it.
 
@@ -97,6 +102,10 @@ LinkedIn, Indeed and Glassdoor are not connected, because they do not allow auto
 ## العربية
 
 تقرأ الأداة إعلانات الوظائف عن بعد، وتخبرك هل يمكنك التقديم من بلدك فعلًا، وتعرض الجملة من الإعلان التي تثبت ذلك. الواجهة متاحة بالعربية، وتفهم الإعلانات العربية أيضًا.
+
+## Brand
+
+The logo, colours and type are in [`docs/brand`](docs/brand) ([brand sheet](docs/brand/brand-sheet.png)). The brackets are the scope of a job post and the square is you. The fonts, Archivo and Readex Pro, are under the SIL Open Font License (`public/fonts`).
 
 ## License
 
