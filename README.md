@@ -105,6 +105,8 @@ LinkedIn, Indeed and Glassdoor are not connected, because they do not allow auto
 
 تقرأ الأداة إعلانات الوظائف عن بعد، وتخبرك هل يمكنك التقديم من بلدك فعلًا، وتعرض الجملة من الإعلان التي تثبت ذلك. الواجهة متاحة بالعربية، وتفهم الإعلانات العربية أيضًا.
 
+![The same job page in Arabic, right to left, with the quoted English sentence kept in order](docs/screenshot-arabic.jpg)
+
 ## Brand
 
 The logo, colours and type are in [`docs/brand`](docs/brand) ([brand sheet](docs/brand/brand-sheet.png)). The brackets are the scope of a job post and the square is you. The fonts, Archivo and Readex Pro, are under the SIL Open Font License (`public/fonts`).
