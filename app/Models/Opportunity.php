@@ -154,7 +154,11 @@ class Opportunity extends Model
 
         foreach (['The source lists your country, but the post says:', 'Post says:', 'Listing location:', 'Listing gives a place and does not say remote:'] as $prefix) {
             if (str_starts_with($this->eligibility_evidence, $prefix)) {
-                return __($prefix).substr($this->eligibility_evidence, strlen($prefix));
+                $quote = ltrim(substr($this->eligibility_evidence, strlen($prefix)));
+
+                // The quote keeps its own direction, so an English sentence and its quotation marks
+                // stay in order after an Arabic label.
+                return __($prefix).' '.(app()->getLocale() === 'ar' ? "\u{2068}{$quote}\u{2069}" : $quote);
             }
         }
 
@@ -175,7 +179,8 @@ class Opportunity extends Model
     private function formatRange(?float $min, ?float $max): string
     {
         if ($min !== null && $max !== null && round($min) !== round($max)) {
-            return number_format($min).'–'.number_format($max);
+            // A word joiner after the dash keeps a range from breaking across two lines.
+            return number_format($min)."–\u{2060}".number_format($max);
         }
 
         return number_format($max ?? $min ?? 0);
