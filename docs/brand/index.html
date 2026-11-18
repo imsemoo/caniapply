@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CanIApply brand sheet</title>
+<link rel="icon" href="mark-small.svg" type="image/svg+xml">
+<style>
+  @font-face { font-family: "Archivo"; src: url("../../public/fonts/archivo.woff2") format("woff2"); font-weight: 400 900; font-stretch: 100% 112%; }
+  @font-face { font-family: "Readex Pro"; src: url("../../public/fonts/readex-pro.woff2") format("woff2"); font-weight: 300 700; }
+  :root { --cobalt: #2346e8; --navy: #0d1330; --cloud: #f4f6fb; --line: #d5dae6; --text-2: #4a5272; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--cloud); color: var(--navy); font: 15px/1.5 "Archivo", "Readex Pro", system-ui, sans-serif; }
+  .page { width: 1280px; margin: 0 auto; padding: 56px 64px 64px; }
+  header { display: flex; justify-content: space-between; align-items: end; border-bottom: 2px solid var(--navy); padding-bottom: 20px; }
+  header img { height: 56px; }
+  header p { margin: 0; color: var(--text-2); max-width: 520px; text-align: right; }
+  h2 { font-weight: 800; font-stretch: 108%; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 14px; color: var(--text-2); }
+  section { margin-top: 40px; }
+  .grid { display: grid; gap: 24px; }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid > * { min-width: 0; }
+  .tile { height: 180px; display: grid; place-items: center; border: 1px solid var(--line); padding: 0 24px; }
+  .cap { font-size: 13px; color: var(--text-2); margin-top: 8px; }
+  .idea { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: center; }
+  .idea p { margin: 0 0 8px; font-size: 17px; max-width: 760px; }
+  .states { display: flex; gap: 14px; }
+  .states figure { margin: 0; text-align: center; font-size: 13px; color: var(--text-2); }
+  .chip { height: 110px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; font-size: 13px; border: 1px solid var(--line); }
+  .chip b { font-size: 15px; }
+  .type .big { font-weight: 800; font-stretch: 108%; font-size: 44px; line-height: 1.05; letter-spacing: -.02em; }
+  .type .ar { font-family: "Readex Pro", sans-serif; font-size: 30px; font-weight: 600; direction: rtl; text-align: right; }
+  .rules li { margin-bottom: 6px; }
+  .rules { margin: 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <img src="lockup-light.svg" alt="CanIApply">
+    <p>Brand sheet. The square brackets are the scope of a job post. The square dot is you. Inside: you can apply. Outside: you can't, and here is the sentence that says so.</p>
+  </header>
+
+  <section>
+    <h2>The idea</h2>
+    <div class="idea">
+      <img src="mark.svg" alt="" width="220" height="220">
+      <div>
+        <p>“Remote” often doesn't include your country. CanIApply finds the one sentence that decides, and shows it as proof.</p>
+        <p>The mark says exactly that: a scope, and whether you are inside it.</p>
+        <div class="states" style="margin-top:18px">
+          <figure><img src="mark.svg" alt="" width="72" height="72"><figcaption>Inside: open</figcaption></figure>
+          <figure><img src="mark-excluded.svg" alt="" width="72" height="72"><figcaption>Outside: excluded (motion and diagrams only)</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Logo files</h2>
+    <div class="grid g4">
+      <div><div class="tile" style="background:#fff"><img src="lockup-light.svg" alt="" height="30"></div><div class="cap">lockup-light.svg · on white or cloud</div></div>
+      <div><div class="tile" style="background:var(--navy)"><img src="lockup-dark.svg" alt="" height="30"></div><div class="cap">lockup-dark.svg · on navy</div></div>
+      <div><div class="tile" style="background:#fff"><img src="wordmark-light.svg" alt="" height="30"></div><div class="cap">wordmark-light.svg / wordmark-dark.svg</div></div>
+      <div><div class="tile" style="background:#fff;gap:14px;display:flex;justify-content:center;align-items:center"><img src="mark.svg" alt="" width="64"><img src="mark-small.svg" alt="" width="32"><img src="mark-small.svg" alt="" width="16"></div><div class="cap">mark.svg (64 grid) · mark-small.svg (16 grid, favicons)</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Colour · contrast is WCAG 2 on the pair shown</h2>
+    <div class="grid" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+      <div class="chip" style="background:#2346e8;color:#fff"><b>Cobalt</b>#2346E8<br>white on it 6.75</div>
+      <div class="chip" style="background:#0d1330;color:#fff"><b>Navy</b>#0D1330<br>on cloud 16.85</div>
+      <div class="chip" style="background:#f4f6fb"><b>Cloud</b>#F4F6FB</div>
+      <div class="chip" style="background:#0b6e4f;color:#fff"><b>Open</b>#0B6E4F<br>on white 6.25</div>
+      <div class="chip" style="background:#8a5a00;color:#fff"><b>Likely</b>#8A5A00<br>on white 5.93</div>
+      <div class="chip" style="background:#b83a14;color:#fff"><b>Outside</b>#B83A14<br>on white 5.75</div>
+    </div>
+    <p class="cap">Cobalt is the brand and primary actions. Verdict colours are only for verdicts. Do not set cobalt text on navy (2.70); on navy use white or #AAB3D6 (8.78).</p>
+  </section>
+
+  <section class="type">
+    <h2>Type · Archivo (Latin) and Readex Pro (Arabic), both SIL OFL</h2>
+    <div class="grid g2">
+      <div>
+        <div class="big">You must be located in the United States.</div>
+        <div class="cap">Display: Archivo 800, width 108%, tracking −0.02em. Wordmark: 850, lower case, outlined.</div>
+        <p style="margin-top:14px;max-width:520px">Body: Archivo 400 at normal width. Numbers are tabular in tables and scores.</p>
+      </div>
+      <div>
+        <div class="ar">يجب أن تكون مقيمًا في الولايات المتحدة.</div>
+        <div class="cap" style="text-align:right">Arabic: Readex Pro 400–700. No letter-spacing on Arabic, ever.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rules</h2>
+    <ul class="rules">
+      <li>Keep clear space around the mark of at least one bracket stroke (6 of 64 units) — use the mark's own tile as the box.</li>
+      <li>Do not redraw, rotate, round the corners of, or add effects to the mark. No gradients, glass or shadows.</li>
+      <li>Write the name as <b>CanIApply</b> in text. The lower-case <b>caniapply</b> is only the drawn wordmark.</li>
+      <li>Under 24 px, use mark-small.svg; it is drawn on a pixel grid.</li>
+      <li>Images for social posts carry no Arabic text.</li>
+    </ul>
+  </section>
+</div>
+</body>
+</html>

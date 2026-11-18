@@ -1,29 +1,42 @@
+/* Brand type: Archivo for Latin, Readex Pro for Arabic (both OFL, see public/fonts) */
 @font-face {
-    font-family: "Noto Sans Arabic";
-    src: url("../fonts/noto-sans-arabic.woff2") format("woff2");
-    font-weight: 400 700;
+    font-family: "Archivo";
+    src: url("../fonts/archivo.woff2") format("woff2");
+    font-weight: 400 900;
+    font-stretch: 100% 112%;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2248, U+2264-2265;
+}
+@font-face {
+    font-family: "Readex Pro";
+    src: url("../fonts/readex-pro.woff2") format("woff2");
+    font-weight: 300 700;
     font-display: swap;
     unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
 }
 
 :root {
-    --ink: #14181f;
-    --ink-2: #1f2530;
-    --on-ink: #e9edf3;
-    --on-ink-2: #a3adbb;
+    /* Brand: cobalt scope, navy ink. Tokens in docs/brand/tokens.css */
+    --ink: #0d1330;
+    --ink-2: #1a2350;
+    --on-ink: #ffffff;
+    --on-ink-2: #aab3d6;
+    --on-ink-mark: #6f86ff;
     --text: #171b22;
     --text-2: #4d5766;
     --surface: #ffffff;
     --panel: #f2f4f7;
     --line: #dde1e7;
     --line-strong: #bcc3cd;
-    --accent: #00745a;
+    --accent: #2346e8;
+    --accent-press: #1a37c4;
     --accent-ink: #ffffff;
-    --accent-soft: #e0f2ec;
-    --bad: #b3261e;
+    --accent-soft: #e8ecfd;
+    --open: #0b6e4f;
+    --bad: #b83a14;
     --warn: #8a5a00;
     --r: 4px;
-    font-family: "Noto Sans Arabic", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Archivo", "Readex Pro", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     font-size: 15px;
     line-height: 1.45;
     color: var(--text);
@@ -40,7 +53,8 @@ body { margin: 0; }
 ::selection { background: var(--accent); color: var(--accent-ink); }
 h1, h2, h3, p, dl, dd, ul { margin: 0; padding: 0; }
 ul { list-style: none; }
-h1 { font-size: 1.6rem; line-height: 1.3; font-weight: 650; text-wrap: balance; }
+h1 { font-size: 1.6rem; line-height: 1.25; font-weight: 800; font-stretch: 108%; letter-spacing: -.01em; text-wrap: balance; }
+[dir="rtl"] h1 { letter-spacing: 0; }
 h2 { font-size: 1.02rem; font-weight: 650; }
 h3 { font-size: .95rem; font-weight: 650; }
 a { color: inherit; text-underline-offset: 2px; text-decoration-color: var(--line-strong); }
@@ -54,12 +68,13 @@ table, .num, .score, .value, .ledger dd, .pay, .posted, .bar + .value { font-var
 /* Shell */
 .shell { display: grid; grid-template-columns: 200px minmax(0, 1fr); min-block-size: 100dvh; }
 .side { background: var(--ink); color: var(--on-ink); padding: 20px 12px; display: flex; flex-direction: column; gap: 22px; position: sticky; inset-block-start: 0; block-size: 100dvh; }
-.brand { font-weight: 700; padding-inline: 10px; text-decoration: none; color: var(--on-ink); }
-.brand:hover { color: var(--on-ink); }
+.brand { display: block; padding-inline: 6px; line-height: 0; }
+.brand img { display: block; block-size: 24px; inline-size: auto; }
 .side nav { display: flex; flex-direction: column; gap: 2px; }
 .side nav a { color: var(--on-ink-2); text-decoration: none; padding: 8px 10px; border-radius: var(--r); }
 .side nav a:hover { background: var(--ink-2); color: var(--on-ink); }
-.side nav a.current { background: var(--ink-2); color: #fff; font-weight: 600; }
+.side nav a.current { background: var(--ink-2); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--on-ink-mark); }
+[dir="rtl"] .side nav a.current { box-shadow: inset -3px 0 0 var(--on-ink-mark); }
 .side :focus-visible { outline-color: var(--on-ink); }
 .side-foot { margin-block-start: auto; }
 .link-on-ink { background: none; border: 0; color: var(--on-ink-2); font: inherit; padding: 8px 10px; cursor: pointer; }
@@ -89,7 +104,7 @@ table, .num, .score, .value, .ledger dd, .pay, .posted, .bar + .value { font-var
 .btn:hover { background: var(--panel); color: var(--text); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.primary:hover { background: #005f4a; border-color: #005f4a; color: var(--accent-ink); }
+.btn.primary:hover { background: var(--accent-press); border-color: var(--accent-press); color: var(--accent-ink); }
 .btn.small { min-block-size: 30px; padding: 3px 9px; font-size: .86rem; }
 .btn.quiet { border-color: transparent; color: var(--text-2); background: transparent; }
 .btn.quiet:hover { background: var(--panel); }
@@ -104,7 +119,7 @@ input[type=text], input[type=search], input[type=url], input[type=email], input[
 textarea { resize: vertical; }
 ::placeholder { color: var(--text-2); opacity: 1; }
 .error { color: var(--bad); font-size: .86rem; }
-.ok { color: var(--accent); font-weight: 600; }
+.ok { color: var(--open); font-weight: 600; }
 .check { display: flex; align-items: center; gap: 8px; }
 .form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .form-grid.narrow { max-inline-size: 860px; }
@@ -150,10 +165,10 @@ thead th { font-size: .8rem; color: var(--text-2); padding-block: 6px; padding-i
 .apps select { min-inline-size: 150px; }
 
 .score { font-weight: 700; font-size: 1.12rem; }
-.score.high { color: var(--accent); }
+.score.high { color: var(--open); }
 .score.muted { color: var(--text-2); font-weight: 500; }
 .score.big { font-size: 2.6rem; line-height: 1; letter-spacing: -0.02em; display: block; }
-.elig-eligible { color: var(--accent); }
+.elig-eligible { color: var(--open); }
 .elig-likely, .elig-unknown { color: var(--warn); }
 .elig-excluded { color: var(--bad); }
 td .elig-eligible, td .elig-likely, td .elig-unknown, td .elig-excluded { font-size: .87rem; }
@@ -204,7 +219,7 @@ td .elig-eligible, td .elig-likely, td .elig-unknown, td .elig-excluded { font-s
 .status-line { display: flex; flex-wrap: wrap; gap: 8px 36px; }
 .status-line dt { color: var(--text-2); font-size: .84rem; }
 .status-line .warn { color: var(--warn); }
-.health.ok { color: var(--accent); font-weight: 600; }
+.health.ok { color: var(--open); font-weight: 600; }
 .health.failing { color: var(--bad); font-weight: 600; }
 .health.degraded { color: var(--warn); font-weight: 600; }
 .health.unknown { color: var(--text-2); }
@@ -212,7 +227,8 @@ td .elig-eligible, td .elig-likely, td .elig-unknown, td .elig-excluded { font-s
 
 .login { background: var(--ink); min-block-size: 100dvh; display: grid; place-items: center; padding: 16px; }
 .login main { background: var(--surface); padding: 28px; border-radius: 6px; inline-size: min(360px, 100%); }
-.login h1 { margin-block-end: 18px; }
+.login h1 { margin-block-end: 22px; line-height: 0; }
+.login h1 img { block-size: 32px; inline-size: auto; }
 .stack { display: flex; flex-direction: column; gap: 14px; }
 
 @media (max-width: 1100px) {
@@ -224,9 +240,11 @@ td .elig-eligible, td .elig-likely, td .elig-unknown, td .elig-excluded { font-s
 @media (max-width: 760px) {
     .shell { grid-template-columns: minmax(0, 1fr); }
     .side { position: static; block-size: auto; padding: 10px 12px; flex-direction: row; align-items: center; gap: 12px; overflow-x: auto; }
-    .brand { white-space: nowrap; padding-inline: 0; }
+    .brand { padding-inline: 0; flex: none; }
+    .brand img { block-size: 22px; }
     .side nav { flex-direction: row; }
     .side nav a { white-space: nowrap; padding: 8px; min-block-size: 40px; }
+    .side nav a.current, [dir="rtl"] .side nav a.current { box-shadow: inset 0 -3px 0 var(--on-ink-mark); }
     .side-foot { margin-block-start: 0; }
     .link-on-ink { white-space: nowrap; }
     .main { padding: 18px 14px 48px; }

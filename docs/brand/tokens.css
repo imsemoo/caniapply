@@ -1,0 +1,22 @@
+/* CanIApply brand tokens (direction "Scope"). The app uses these values in public/css/app.css. */
+:root {
+    /* Colour */
+    --cia-cobalt: #2346e8;        /* brand, primary actions, the mark tile */
+    --cia-cobalt-press: #1a37c4;  /* hover / pressed */
+    --cia-cobalt-soft: #e8ecfd;   /* selected backgrounds */
+    --cia-navy: #0d1330;          /* ink, sidebar, dark surfaces */
+    --cia-navy-2: #1a2350;        /* raised dark surface */
+    --cia-on-navy-2: #aab3d6;     /* secondary text on navy */
+    --cia-on-navy-mark: #6f86ff;  /* current-item marker on navy (non-text) */
+    --cia-cloud: #f4f6fb;         /* light page background */
+    --cia-white: #ffffff;
+    --cia-open: #0b6e4f;          /* verdict: open to your country */
+    --cia-likely: #8a5a00;        /* verdict: likely / not confirmed */
+    --cia-outside: #b83a14;       /* verdict: excludes your country */
+
+    /* Type */
+    --cia-font: "Archivo", "Readex Pro", system-ui, sans-serif;
+    --cia-display-weight: 800;
+    --cia-display-stretch: 108%;
+    --cia-display-tracking: -0.02em; /* Latin only; never track Arabic */
+}

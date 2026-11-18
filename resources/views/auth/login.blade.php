@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>{{ __('Sign in') }} · {{ __('CanIApply') }}</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <meta name="theme-color" content="#0d1330">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
 </head>
 <body class="login">
 <main>
-    <h1>{{ __('CanIApply') }}</h1>
+    <h1><img src="{{ asset('brand/lockup-light.svg') }}" alt="{{ __('CanIApply') }}" width="213" height="32"></h1>
     <form method="post" action="{{ url('/login') }}" class="stack">
         @csrf
         <div class="field">
